@@ -31,6 +31,16 @@ data/**/*.zip
 !data/**/sample_*.csv
 !data/**/example_*.csv
 
+# Raw NDFD GRIB: binary, multi-MB, regenerated every run — never commit.
+data/raw/*.bin
+
+# Heat pipeline outputs ARE the deliverable — commit them (the data pipeline's
+# "store the latest data" step). Reference geographies refresh ~yearly.
+!data/reference/places.csv
+!data/reference/counties.geojson
+!data/processed/*.csv
+!data/processed/*.geojson
+
 # Editors / OS
 .vscode/*
 !.vscode/settings.json

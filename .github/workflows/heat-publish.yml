@@ -1,0 +1,49 @@
+name: heat publish
+
+# Job 3 (presentation): deploy the MapLibre viewer to GitHub Pages from the data
+# the pipeline already committed. It only READS data/processed — delete this file
+# and the fetch/reformat/commit pipeline (heat-data.yml) keeps working untouched.
+#
+# Runs after the data pipeline finishes, or on demand. (Repo setting required:
+# Settings → Pages → Source = "GitHub Actions".)
+on:
+  workflow_run:
+    workflows: ["heat data pipeline"]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: heat-publish
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # Deploy on a successful pipeline run, or whenever triggered by hand.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Assemble a self-contained site: the viewer plus the GeoJSON it loads.
+      # DATA_BASE in index.html defaults to "data", so the layout is index.html + data/.
+      - name: Assemble site
+        run: |
+          mkdir -p _site/data
+          cp viewer/index.html _site/index.html
+          cp data/processed/*.geojson _site/data/ 2>/dev/null || \
+            echo "no GeoJSON in data/processed — run the data pipeline first"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

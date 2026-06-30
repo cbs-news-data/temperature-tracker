@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NDFD heat forecast</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<style>
+  html,body,#map{height:100%;margin:0}
+  body{font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif}
+  #panel{position:absolute;top:12px;left:12px;z-index:1;background:#fff;
+         padding:12px 14px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.25);max-width:270px}
+  #panel h1{font-size:14px;margin:0 0 8px}
+  #panel label{display:block;margin:8px 0 2px;font-weight:600;font-size:12px;color:#333}
+  select{width:100%}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;padding:6px;border:1px solid #ccc;background:#f7f7f7;border-radius:6px;cursor:pointer}
+  .seg button.on{background:#7f0000;color:#fff;border-color:#7f0000}
+  #legend{margin-top:10px;font-size:11px}
+  #legend i{display:inline-block;width:14px;height:14px;margin-right:4px;vertical-align:-2px}
+  #meta{margin-top:8px;font-size:11px;color:#666}
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1 id="title">Forecast temperature</h1>
+  <label for="measure">Measure</label>
+  <select id="measure">
+    <option value="temp">Temperature (daytime high)</option>
+    <option value="feelslike">Feels-like (daytime high)</option>
+    <option value="warmnight">Warm nights (overnight low)</option>
+  </select>
+  <label>Layer</label>
+  <div class="seg">
+    <button id="b-geo" class="on">Counties</button>
+    <button id="b-dots">Dots</button>
+  </div>
+  <label for="day">Day</label>
+  <select id="day"></select>
+  <div id="legend"></div>
+  <div id="meta">Source: NOAA/NWS NDFD. °F.</div>
+</div>
+<div id="map"></div>
+<script>
+// Job 3 (presentation) reads only the files Job 2 writes. DATA_BASE points at them:
+//  - Deployed (GitHub Pages): site root holds index.html + data/  -> default "data".
+//  - Local: serve the repo root, then open  index.html?data=../data/processed
+const DATA_BASE = new URLSearchParams(location.search).get('data') || 'data';
+
+const DATASETS = {
+  temp:      {prefix:'heat',      title:'Forecast temperature (daytime high)',
+              stops:[[70,'#2c7bb6'],[80,'#abd9e9'],[90,'#ffffbf'],[95,'#fdae61'],[100,'#f46d43'],[105,'#d73027'],[110,'#7f0000']]},
+  feelslike: {prefix:'feelslike', title:'Feels-like temperature (daytime high)',
+              stops:[[70,'#2c7bb6'],[80,'#abd9e9'],[90,'#ffffbf'],[95,'#fdae61'],[100,'#f46d43'],[105,'#d73027'],[115,'#7f0000']]},
+  warmnight: {prefix:'warmnight', title:'Warm nights (overnight feels-like low)',
+              stops:[[60,'#2c7bb6'],[68,'#abd9e9'],[72,'#ffffbf'],[75,'#fdae61'],[80,'#f46d43'],[85,'#d73027'],[90,'#7f0000']]}
+};
+const EMPTY = {type:'FeatureCollection',features:[]};
+
+// Color ramp for the current day's value.
+const colorExpr = (day,stops) => {
+  const e=['interpolate',['linear'],['get',day]];
+  stops.forEach(([t,c])=>e.push(t,c)); return e;
+};
+// Hide no-data features for the current day instead of painting them the coldest color.
+const hasValue = (day) => ['all',['has',day],['!=',['get',day],null]];
+
+const basemap = {version:8,
+  sources:{carto:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+    tileSize:256,attribution:'© OpenStreetMap, © CARTO'}},
+  layers:[{id:'bg',type:'raster',source:'carto'}]};
+
+const map=new maplibregl.Map({container:'map',style:basemap,center:[-97,38],zoom:3.6});
+map.addControl(new maplibregl.NavigationControl());
+
+// Counties give the clean national overview; dots are for drill-down ("find my town").
+let measure='temp', layer='geo', day='day1', days=[];
+const cache={};  // prefix -> {pts, cty}
+
+async function fetchJSON(url){ return fetch(url).then(r=>r.ok?r.json():EMPTY).catch(()=>EMPTY); }
+async function fetchDataset(prefix){
+  if(cache[prefix]) return cache[prefix];
+  const [pts,cty]=await Promise.all([
+    fetchJSON(`${DATA_BASE}/${prefix}_points.geojson`),
+    fetchJSON(`${DATA_BASE}/${prefix}_counties.geojson`),
+  ]);
+  return cache[prefix]={pts,cty};
+}
+
+// Day list comes from the points metadata; fall back to county feature keys
+// (day1, day2, …) so the viewer still works for a counties-only product.
+function dayList(pts,cty){
+  if(pts.metadata&&pts.metadata.days) return pts.metadata.days;
+  const f=(cty.features||[])[0];
+  const keys=f?Object.keys(f.properties).filter(k=>/^day\d+$/.test(k)):[];
+  return keys.length?keys.sort((a,b)=>+a.slice(3)-+b.slice(3)).map(k=>({key:k})):[{key:'day1'}];
+}
+
+map.on('load', async ()=>{
+  map.addSource('pts',{type:'geojson',data:EMPTY});
+  map.addSource('cty',{type:'geojson',data:EMPTY});
+  map.addLayer({id:'geo',type:'fill',source:'cty',
+    paint:{'fill-opacity':0.75,'fill-outline-color':'#999'}});
+  map.addLayer({id:'dots',type:'circle',source:'pts',layout:{visibility:'none'},
+    paint:{'circle-radius':['interpolate',['linear'],['zoom'],3,2.2,7,5],
+           'circle-stroke-width':0.4,'circle-stroke-color':'#444','circle-opacity':0.9}});
+  popup('dots'); popup('geo');
+  setLayer('geo');
+  await setMeasure('temp');
+});
+
+async function setMeasure(m){
+  measure=m;
+  const ds=DATASETS[m];
+  document.getElementById('title').textContent=ds.title;
+  const {pts,cty}=await fetchDataset(ds.prefix);
+  map.getSource('pts').setData(pts);
+  map.getSource('cty').setData(cty);
+  days=dayList(pts,cty);
+  const sel=document.getElementById('day');
+  const prev=day;
+  sel.innerHTML='';
+  days.forEach(d=>{const o=document.createElement('option');o.value=d.key;
+    const thin=(d.n_hours!==undefined&&d.n_hours<6)?` ⚠${d.n_hours}h`:'';
+    o.textContent=`${d.key} — ${d.fcst_date||''}${thin}`; sel.appendChild(o);});
+  day=days.some(d=>d.key===prev)?prev:days[0].key;
+  sel.value=day;
+  paint(); legend();
+}
+function paint(){
+  const s=DATASETS[measure].stops;
+  for(const id of ['dots','geo']){
+    map.setFilter(id, hasValue(day));
+    map.setPaintProperty(id, id==='dots'?'circle-color':'fill-color', colorExpr(day,s));
+  }
+}
+function setLayer(l){ layer=l;
+  document.getElementById('b-dots').classList.toggle('on',l==='dots');
+  document.getElementById('b-geo').classList.toggle('on',l==='geo');
+  map.setLayoutProperty('dots','visibility',l==='dots'?'visible':'none');
+  map.setLayoutProperty('geo','visibility',l==='geo'?'visible':'none');
+}
+function popup(id){
+  map.on('click',id,e=>{const p=e.features[0].properties;
+    const nm=p.name_state??p.name_display??p.name??p.NAME??p.NAMELSAD??'';
+    new maplibregl.Popup().setLngLat(e.lngLat)
+      .setHTML(`<b>${nm}</b><br>${day}: ${p[day]??'n/a'} °F`).addTo(map);});
+  map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave',id,()=>map.getCanvas().style.cursor='');
+}
+function legend(){
+  document.getElementById('legend').innerHTML=
+    DATASETS[measure].stops.map(([t,c])=>`<div><i style="background:${c}"></i>${t}°F</div>`).join('');
+}
+document.getElementById('measure').onchange=e=>setMeasure(e.target.value);
+document.getElementById('day').onchange=e=>{day=e.target.value;paint();};
+document.getElementById('b-dots').onclick=()=>setLayer('dots');
+document.getElementById('b-geo').onclick=()=>setLayer('geo');
+</script>
+</body>
+</html>

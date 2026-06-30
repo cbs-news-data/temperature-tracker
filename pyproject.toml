@@ -28,6 +28,20 @@ geo = [
     "folium>=0.15.0",
     "geopandas>=1.0.0",
 ]
+# Everything the NDFD heat pipeline needs in one shot: `uv sync --extra heat`.
+# pygrib also needs the system eccodes C library (macOS: `brew install eccodes`;
+# Debian/Ubuntu: `apt-get install libeccodes-dev`).
+heat = [
+    "pygrib>=2.1.5",
+    "scipy>=1.11",
+    "geopandas>=1.0.0",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    "tzdata>=2024.1",
+]
+dev = [
+    "pytest>=8.0",
+]
 data = [
     "polars>=1.0.0",
     "duckdb>=1.0.0",

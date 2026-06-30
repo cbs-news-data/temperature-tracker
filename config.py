@@ -22,8 +22,15 @@ NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 UTILS_DIR = PROJECT_ROOT / "utils"
 
+# Heat pipeline (see README). The pipeline is decoupled in three stages:
+#   fetch (data/raw) -> reformat (data/processed) -> present (viewer/, reads processed).
+# build_heat.py writes only to PROCESSED_DATA_DIR; the viewer is the sole consumer,
+# so the presentation layer can be relocated without touching fetch/reformat.
+REFERENCE_DIR = DATA_DIR / "reference"      # places.csv + counties.geojson (yearly refresh)
+VIEWER_DIR = PROJECT_ROOT / "viewer"        # presentation layer (Job 3), reads data/processed
+
 # Ensure data dirs exist on first import
-for _dir in [RAW_DATA_DIR, PROCESSED_DATA_DIR, DOCUMENTATION_DIR]:
+for _dir in [RAW_DATA_DIR, PROCESSED_DATA_DIR, DOCUMENTATION_DIR, REFERENCE_DIR]:
     _dir.mkdir(parents=True, exist_ok=True)
 
 # Reproducibility
