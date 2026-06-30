@@ -89,6 +89,21 @@ const colorExpr = (day,stops) => {
 // Hide no-data features for the current day instead of painting them the coldest color.
 const hasValue = (day) => ['all',['has',day],['!=',['get',day],null]];
 
+// Match the map's color for a value (same stops + linear interpolation) so popup
+// swatches correspond to the legend / the dot or county on the map.
+function hexToRgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));}
+function colorForValue(v,stops){
+  if(v==null||isNaN(v)) return null;
+  if(v<=stops[0][0]) return stops[0][1];
+  const last=stops[stops.length-1]; if(v>=last[0]) return last[1];
+  for(let i=0;i<stops.length-1;i++){
+    const [t0,c0]=stops[i],[t1,c1]=stops[i+1];
+    if(v>=t0&&v<=t1){const f=(v-t0)/(t1-t0),a=hexToRgb(c0),b=hexToRgb(c1);
+      return `rgb(${a.map((x,k)=>Math.round(x+(b[k]-x)*f)).join(',')})`;}
+  }
+  return last[1];
+}
+
 const basemap = {version:8,
   sources:{carto:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
     tileSize:256,attribution:'© OpenStreetMap, © CARTO'}},
@@ -137,11 +152,14 @@ function labelFor(key){ const d=days.find(x=>x.key===key); return d&&d.fcst_date
 
 // Popup body: the full forecast for a place — one row per day, current day bold.
 function popupHTML(name, props){
+  const stops=DATASETS[measure].stops;
   const rows=days.map(d=>{
     const v=props[d.key];
     const on=d.key===day?' style="font-weight:600"':'';
+    const sw=v==null?'':`<span style="display:inline-block;width:11px;height:11px;`+
+             `background:${colorForValue(v,stops)};border:1px solid #999;margin-right:5px;vertical-align:-1px"></span>`;
     return `<tr${on}><td style="padding-right:10px">${labelFor(d.key)}</td>`+
-           `<td style="text-align:right">${v==null?'n/a':v+'°F'}</td></tr>`;
+           `<td style="text-align:right;white-space:nowrap">${sw}${v==null?'n/a':v+'°F'}</td></tr>`;
   }).join('');
   return `<b>${name}</b><div style="font-size:11px;color:#666">${DATASETS[measure].title}</div>`+
          `<table style="margin-top:4px;border-collapse:collapse;font-size:12px">${rows}</table>`;
