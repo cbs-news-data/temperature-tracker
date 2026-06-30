@@ -129,6 +129,18 @@ function dayLabel(iso){
 }
 function labelFor(key){ const d=days.find(x=>x.key===key); return d&&d.fcst_date?dayLabel(d.fcst_date):key; }
 
+// Popup body: the full forecast for a place — one row per day, current day bold.
+function popupHTML(name, props){
+  const rows=days.map(d=>{
+    const v=props[d.key];
+    const on=d.key===day?' style="font-weight:600"':'';
+    return `<tr${on}><td style="padding-right:10px">${labelFor(d.key)}</td>`+
+           `<td style="text-align:right">${v==null?'n/a':v+'°F'}</td></tr>`;
+  }).join('');
+  return `<b>${name}</b><div style="font-size:11px;color:#666">${DATASETS[measure].title}</div>`+
+         `<table style="margin-top:4px;border-collapse:collapse;font-size:12px">${rows}</table>`;
+}
+
 map.on('load', async ()=>{
   map.addSource('pts',{type:'geojson',data:EMPTY});
   map.addSource('cty',{type:'geojson',data:EMPTY});
@@ -179,8 +191,7 @@ function setLayer(l){ layer=l;
 function popup(id){
   map.on('click',id,e=>{const p=e.features[0].properties;
     const nm=p.name_state??p.name_display??p.name??p.NAME??p.NAMELSAD??'';
-    new maplibregl.Popup().setLngLat(e.lngLat)
-      .setHTML(`<b>${nm}</b><br>${labelFor(day)}: ${p[day]??'n/a'} °F`).addTo(map);});
+    new maplibregl.Popup().setLngLat(e.lngLat).setHTML(popupHTML(nm, p)).addTo(map);});
   map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');
   map.on('mouseleave',id,()=>map.getCanvas().style.cursor='');
 }
@@ -220,8 +231,7 @@ function selectPlace(p){
   const box=document.getElementById('results'); box.style.display='none';
   setLayer('dots');                          // reveal the Places layer
   map.flyTo({center:p.coords, zoom:9});
-  new maplibregl.Popup().setLngLat(p.coords)
-    .setHTML(`<b>${p.label}</b><br>${labelFor(day)}: ${p.props[day]??'n/a'} °F`).addTo(map);
+  new maplibregl.Popup().setLngLat(p.coords).setHTML(popupHTML(p.label, p.props)).addTo(map);
 }
 
 document.getElementById('measure').onchange=e=>setMeasure(e.target.value);
