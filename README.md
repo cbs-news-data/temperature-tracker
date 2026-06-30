@@ -79,7 +79,7 @@ dropdown (Temperature / Feels-like / Warm nights), a **Counties/Places** toggle
 (counties is the default national overview; places are for drill-down), and a
 **Day** selector. Each measure has its own ramp; thin buckets (`n_hours` < 6) are
 flagged ⚠ in the day list; no-data places are hidden, not painted the coldest
-color; place dots drop their outline at national zoom so they blend into a field.
+color; place dots have no outline and overlap into a field.
 
 It loads GeoJSON from `DATA_BASE`, set via the `?data=` query param (default
 `data`). Local: `?data=../data/processed`. Deployed: the publish workflow lays the
