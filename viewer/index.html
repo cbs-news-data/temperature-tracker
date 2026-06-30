@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NDFD heat forecast</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<style>
+  html,body,#map{height:100%;margin:0}
+  body{font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif}
+  #panel{position:absolute;top:12px;left:12px;z-index:1;background:#fff;
+         padding:12px 14px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.25);max-width:270px}
+  #panel h1{font-size:14px;margin:0 0 8px}
+  #panel label{display:block;margin:8px 0 2px;font-weight:600;font-size:12px;color:#333}
+  select{width:100%}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;padding:6px;border:1px solid #ccc;background:#f7f7f7;border-radius:6px;cursor:pointer}
+  .seg button.on{background:#7f0000;color:#fff;border-color:#7f0000}
+  #legend{margin-top:10px;font-size:11px}
+  #legend i{display:inline-block;width:14px;height:14px;margin-right:4px;vertical-align:-2px}
+  #meta{margin-top:8px;font-size:11px;color:#666}
+  #searchwrap{position:relative}
+  #search{width:100%;box-sizing:border-box;padding:6px;border:1px solid #ccc;border-radius:6px}
+  #results{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #ccc;
+           border-top:none;max-height:220px;overflow:auto;z-index:2;display:none;border-radius:0 0 6px 6px}
+  #results div{padding:5px 8px;cursor:pointer;border-bottom:1px solid #eee;font-size:12px}
+  #results div:last-child{border-bottom:none}
+  #results div:hover,#results div.active{background:#f0e6e6}
+  #results .none{color:#999;cursor:default}
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1 id="title">Forecast temperature</h1>
+  <label for="search">Find a place</label>
+  <div id="searchwrap">
+    <input id="search" type="text" placeholder="City, state…" autocomplete="off"/>
+    <div id="results"></div>
+  </div>
+  <label for="measure">Measure</label>
+  <select id="measure">
+    <option value="temp">Temperature (daytime high)</option>
+    <option value="feelslike">Feels-like (daytime high)</option>
+    <option value="warmnight">Warm nights (overnight low)</option>
+  </select>
+  <label>Layer</label>
+  <div class="seg">
+    <button id="b-geo" class="on">Counties</button>
+    <button id="b-dots">Places</button>
+  </div>
+  <label>Region</label>
+  <div class="seg">
+    <button id="r-conus" class="on">CONUS</button>
+    <button id="r-ak">Alaska</button>
+    <button id="r-hi">Hawaii</button>
+  </div>
+  <label for="day">Day</label>
+  <select id="day"></select>
+  <div id="legend"></div>
+  <div id="meta">Source: NOAA/NWS NDFD. °F.</div>
+</div>
+<div id="map"></div>
+<script>
+// Job 3 (presentation) reads only the files Job 2 writes. DATA_BASE points at them:
+//  - Deployed (GitHub Pages): site root holds index.html + data/  -> default "data".
+//  - Local: serve the repo root, then open  index.html?data=../data/processed
+const DATA_BASE = new URLSearchParams(location.search).get('data') || 'data';
+
+// Heat-emphasis ramp for daytime highs: cool below 80°F, YELLOW at 80, ORANGE in
+// the low 90s, RED in the upper 90s, deepening toward black by 110. Shared by temp
+// and feels-like so a given temperature reads the same color in both.
+const HEAT_STOPS=[[50,'#2c7bb6'],[70,'#abd9e9'],[75,'#e8f5b0'],
+                  [80,'#ffe23d'],[85,'#ffa726'],[90,'#fb6a00'],[95,'#e53935'],
+                  [100,'#c1161b'],[105,'#9c1414'],[110,'#6d0000']];
+const DATASETS = {
+  temp:      {prefix:'heat',      title:'Forecast temperature (daytime high)', stops:HEAT_STOPS},
+  feelslike: {prefix:'feelslike', title:'Feels-like temperature (daytime high)', stops:HEAT_STOPS},
+  warmnight: {prefix:'warmnight', title:'Warm nights (overnight feels-like low)',
+              stops:[[60,'#2c7bb6'],[68,'#abd9e9'],[72,'#ffffbf'],[75,'#fdae61'],[80,'#f46d43'],[85,'#d73027'],[90,'#7f0000']]}
+};
+const EMPTY = {type:'FeatureCollection',features:[]};
+
+// Color ramp for the current day's value.
+const colorExpr = (day,stops) => {
+  const e=['interpolate',['linear'],['get',day]];
+  stops.forEach(([t,c])=>e.push(t,c)); return e;
+};
+// Hide no-data features for the current day instead of painting them the coldest color.
+const hasValue = (day) => ['all',['has',day],['!=',['get',day],null]];
+
+// Match the map's color for a value (same stops + linear interpolation) so popup
+// swatches correspond to the legend / the dot or county on the map.
+function hexToRgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));}
+function colorForValue(v,stops){
+  if(v==null||isNaN(v)) return null;
+  if(v<=stops[0][0]) return stops[0][1];
+  const last=stops[stops.length-1]; if(v>=last[0]) return last[1];
+  for(let i=0;i<stops.length-1;i++){
+    const [t0,c0]=stops[i],[t1,c1]=stops[i+1];
+    if(v>=t0&&v<=t1){const f=(v-t0)/(t1-t0),a=hexToRgb(c0),b=hexToRgb(c1);
+      return `rgb(${a.map((x,k)=>Math.round(x+(b[k]-x)*f)).join(',')})`;}
+  }
+  return last[1];
+}
+
+const basemap = {version:8,
+  sources:{carto:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+    tileSize:256,attribution:'© OpenStreetMap, © CARTO'}},
+  layers:[{id:'bg',type:'raster',source:'carto'}]};
+
+const map=new maplibregl.Map({container:'map',style:basemap,center:[-97,38],zoom:3.6});
+map.addControl(new maplibregl.NavigationControl());
+
+// Counties give the clean national overview; dots are for drill-down ("find my town").
+let measure='temp', layer='geo', day='day1', days=[];
+const cache={};  // prefix -> {pts, cty}
+let placeIndex=[];  // [{label, coords:[lon,lat], props}] for the search box
+
+async function fetchJSON(url){ return fetch(url).then(r=>r.ok?r.json():EMPTY).catch(()=>EMPTY); }
+async function fetchDataset(prefix){
+  if(cache[prefix]) return cache[prefix];
+  const [pts,cty]=await Promise.all([
+    fetchJSON(`${DATA_BASE}/${prefix}_points.geojson`),
+    fetchJSON(`${DATA_BASE}/${prefix}_counties.geojson`),
+  ]);
+  return cache[prefix]={pts,cty};
+}
+
+// Day list comes from the points metadata; fall back to county feature keys
+// (day1, day2, …) so the viewer still works for a counties-only product.
+function dayList(pts,cty){
+  if(pts.metadata&&pts.metadata.days) return pts.metadata.days;
+  const f=(cty.features||[])[0];
+  const keys=f?Object.keys(f.properties).filter(k=>/^day\d+$/.test(k)):[];
+  return keys.length?keys.sort((a,b)=>+a.slice(3)-+b.slice(3)).map(k=>({key:k})):[{key:'day1'}];
+}
+
+// Human day labels from the forecast date: Today / Tomorrow / weekday + short date.
+// Derived from fcst_date, NOT the dayN index — NDFD can drop "today" mid-day, so
+// day1's date may actually be tomorrow.
+function dayLabel(iso){
+  if(!iso) return '';
+  const d=new Date(iso+'T00:00:00');
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.round((d-today)/86400000);
+  const rel = diff===0 ? 'Today' : diff===1 ? 'Tomorrow'
+            : d.toLocaleDateString(undefined,{weekday:'long'});
+  return `${rel} · ${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}`;
+}
+function labelFor(key){ const d=days.find(x=>x.key===key); return d&&d.fcst_date?dayLabel(d.fcst_date):key; }
+
+// Popup body: the full forecast for a place — one row per day, current day bold.
+function popupHTML(name, props){
+  const stops=DATASETS[measure].stops;
+  const rows=days.map(d=>{
+    const v=props[d.key];
+    const on=d.key===day?' style="font-weight:600"':'';
+    const sw=v==null?'':`<span style="display:inline-block;width:11px;height:11px;`+
+             `background:${colorForValue(v,stops)};border:1px solid #999;margin-right:5px;vertical-align:-1px"></span>`;
+    return `<tr${on}><td style="padding-right:10px">${labelFor(d.key)}</td>`+
+           `<td style="text-align:right;white-space:nowrap">${sw}${v==null?'n/a':v+'°F'}</td></tr>`;
+  }).join('');
+  return `<b>${name}</b><div style="font-size:11px;color:#666">${DATASETS[measure].title}</div>`+
+         `<table style="margin-top:4px;border-collapse:collapse;font-size:12px">${rows}</table>`;
+}
+
+map.on('load', async ()=>{
+  map.addSource('pts',{type:'geojson',data:EMPTY});
+  map.addSource('cty',{type:'geojson',data:EMPTY});
+  map.addLayer({id:'geo',type:'fill',source:'cty',
+    paint:{'fill-opacity':0.75,'fill-outline-color':'#999'}});
+  map.addLayer({id:'dots',type:'circle',source:'pts',layout:{visibility:'none'},
+    // No outline (uniform at every zoom) and a slightly larger radius; dots may
+    // overlap and just paint over each other into a field, rather than fading edges.
+    paint:{'circle-radius':['interpolate',['linear'],['zoom'],3,2.5,7,6],
+           'circle-opacity':0.9}});
+  popup('dots'); popup('geo');
+  setLayer('geo');
+  await setMeasure('temp');
+});
+
+async function setMeasure(m){
+  measure=m;
+  const ds=DATASETS[m];
+  document.getElementById('title').textContent=ds.title;
+  const {pts,cty}=await fetchDataset(ds.prefix);
+  map.getSource('pts').setData(pts);
+  map.getSource('cty').setData(cty);
+  buildIndex(pts);
+  days=dayList(pts,cty);
+  const sel=document.getElementById('day');
+  const prev=day;
+  sel.innerHTML='';
+  days.forEach(d=>{const o=document.createElement('option');o.value=d.key;
+    const thin=(d.n_hours!==undefined&&d.n_hours<6)?` ⚠${d.n_hours}h`:'';
+    o.textContent=`${dayLabel(d.fcst_date)||d.key}${thin}`; sel.appendChild(o);});
+  day=days.some(d=>d.key===prev)?prev:days[0].key;
+  sel.value=day;
+  paint(); legend();
+}
+function paint(){
+  const s=DATASETS[measure].stops;
+  for(const id of ['dots','geo']){
+    map.setFilter(id, hasValue(day));
+    map.setPaintProperty(id, id==='dots'?'circle-color':'fill-color', colorExpr(day,s));
+  }
+}
+function setLayer(l){ layer=l;
+  document.getElementById('b-dots').classList.toggle('on',l==='dots');
+  document.getElementById('b-geo').classList.toggle('on',l==='geo');
+  map.setLayoutProperty('dots','visibility',l==='dots'?'visible':'none');
+  map.setLayoutProperty('geo','visibility',l==='geo'?'visible':'none');
+}
+function popup(id){
+  map.on('click',id,e=>{const p=e.features[0].properties;
+    const nm=p.name_state??p.name_display??p.name??p.NAME??p.NAMELSAD??'';
+    new maplibregl.Popup().setLngLat(e.lngLat).setHTML(popupHTML(nm, p)).addTo(map);});
+  map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave',id,()=>map.getCanvas().style.cursor='');
+}
+function legend(){
+  document.getElementById('legend').innerHTML=
+    DATASETS[measure].stops.map(([t,c])=>`<div><i style="background:${c}"></i>${t}°F</div>`).join('');
+}
+
+// ---- place search (client-side, over the points already loaded) ----
+function buildIndex(pts){
+  placeIndex=(pts.features||[]).map(f=>({
+    label:f.properties.name_state||f.properties.name_display||f.properties.name||'',
+    coords:f.geometry.coordinates, props:f.properties,
+  })).filter(p=>p.label);
+}
+function runSearch(q){
+  const box=document.getElementById('results');
+  q=q.trim().toLowerCase();
+  if(q.length<2){box.style.display='none';box.innerHTML='';box._hits=[];return;}
+  const starts=[], contains=[];
+  for(const p of placeIndex){
+    const l=p.label.toLowerCase();
+    if(l.startsWith(q)) starts.push(p);
+    else if(l.includes(q)) contains.push(p);
+    if(starts.length>=8) break;
+  }
+  const hits=starts.concat(contains).slice(0,8);
+  box._hits=hits;
+  box.innerHTML=hits.length
+    ? hits.map((p,i)=>`<div data-i="${i}">${p.label}</div>`).join('')
+    : '<div class="none">No match</div>';
+  box.style.display='block';
+}
+function selectPlace(p){
+  if(!p) return;
+  document.getElementById('search').value=p.label;
+  const box=document.getElementById('results'); box.style.display='none';
+  setLayer('dots');                          // reveal the Places layer
+  map.flyTo({center:p.coords, zoom:9});
+  new maplibregl.Popup().setLngLat(p.coords).setHTML(popupHTML(p.label, p.props)).addTo(map);
+}
+
+document.getElementById('measure').onchange=e=>setMeasure(e.target.value);
+document.getElementById('day').onchange=e=>{day=e.target.value;paint();};
+document.getElementById('b-dots').onclick=()=>setLayer('dots');
+document.getElementById('b-geo').onclick=()=>setLayer('geo');
+
+// Region jump: AK/HI sit far off the CONUS view, so offer quick presets.
+const VIEWS={conus:{center:[-97,38],zoom:3.6},
+             ak:{center:[-152,63],zoom:3.1},
+             hi:{center:[-157.3,20.5],zoom:6}};
+function gotoRegion(r){
+  for(const id of ['r-conus','r-ak','r-hi']) document.getElementById(id).classList.toggle('on',id==='r-'+r);
+  map.flyTo(VIEWS[r]);
+}
+document.getElementById('r-conus').onclick=()=>gotoRegion('conus');
+document.getElementById('r-ak').onclick=()=>gotoRegion('ak');
+document.getElementById('r-hi').onclick=()=>gotoRegion('hi');
+
+const searchEl=document.getElementById('search'), resultsEl=document.getElementById('results');
+searchEl.oninput=e=>runSearch(e.target.value);
+searchEl.onkeydown=e=>{ if(e.key==='Enter'){ selectPlace((resultsEl._hits||[])[0]); }
+                       else if(e.key==='Escape'){ resultsEl.style.display='none'; } };
+resultsEl.onclick=e=>{ const d=e.target.closest('div[data-i]');
+                       if(d) selectPlace(resultsEl._hits[+d.dataset.i]); };
+// close the dropdown when clicking elsewhere
+document.addEventListener('click',e=>{ if(!e.target.closest('#searchwrap')) resultsEl.style.display='none'; });
+</script>
+</body>
+</html>
