@@ -48,10 +48,13 @@ def fetch_one(status: str, area: str, period: str, element: str,
         try:
             r = requests.get(url, headers=HEADERS, timeout=120)
             r.raise_for_status()
-            # GRIB2 messages start with the ASCII magic 'GRIB'. Fail loudly here
-            # rather than saving an HTML error page that breaks decode later.
-            if not r.content.startswith(b"GRIB"):
-                raise ValueError(f"payload is not GRIB2 (got {r.content[:16]!r})")
+            # TGFTP serves NDFD as WMO-wrapped, concatenated GRIB2 messages: each
+            # message is framed by a ****<bytecount>**** separator and a WMO heading,
+            # so the file does NOT start with 'GRIB' (the first message sits ~80 bytes
+            # in). pygrib/eccodes scans past that framing fine. Accept any payload
+            # that contains a GRIB indicator; reject HTML/error pages (which won't).
+            if b"GRIB" not in r.content:
+                raise ValueError(f"payload has no GRIB2 message (starts {r.content[:16]!r})")
             dest.write_bytes(r.content)
             print(f"  ok  {url}  ({len(r.content):,} bytes)")
             return dest

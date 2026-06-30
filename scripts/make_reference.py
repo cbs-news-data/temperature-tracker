@@ -20,6 +20,7 @@ import argparse
 import io
 import re
 import sys
+import time
 import zipfile
 from pathlib import Path
 
@@ -54,9 +55,24 @@ def clean_place_name(name: str) -> str:
     return _DESC.sub("", n).strip()
 
 
+def get_bytes(url: str, tries: int = 4) -> bytes:
+    """Download with retry/backoff. Census TLS handshakes can fail transiently on
+    corporate networks; one hiccup shouldn't sink a yearly reference build."""
+    for attempt in range(1, tries + 1):
+        try:
+            r = requests.get(url, headers=UA, timeout=180)
+            r.raise_for_status()
+            return r.content
+        except Exception as e:  # noqa: BLE001 — retry on anything transient
+            print(f"  try {attempt}/{tries} failed: {e}", file=sys.stderr)
+            if attempt == tries:
+                raise
+            time.sleep(2 * attempt)
+
+
 def build_places(outdir: Path, min_sqmi: float, incorporated: bool) -> None:
     print(f"GET {GAZ}")
-    z = zipfile.ZipFile(io.BytesIO(requests.get(GAZ, headers=UA, timeout=180).content))
+    z = zipfile.ZipFile(io.BytesIO(get_bytes(GAZ)))
     name = next(n for n in z.namelist() if n.lower().endswith(".txt"))
     df = pd.read_csv(z.open(name), sep="\t", dtype=str, encoding="latin-1")
     df.columns = [c.strip() for c in df.columns]  # the Gazetteer pads some headers
@@ -85,7 +101,7 @@ def build_counties(outdir: Path) -> None:
     print(f"GET {CB_COUNTY}")
     outdir.mkdir(parents=True, exist_ok=True)
     zpath = outdir / "_county.zip"
-    zpath.write_bytes(requests.get(CB_COUNTY, headers=UA, timeout=180).content)
+    zpath.write_bytes(get_bytes(CB_COUNTY))
     gdf = gpd.read_file(f"zip://{zpath}").to_crs(4326)
     keep = [c for c in ("GEOID", "NAME", "NAMELSAD", "STUSPS", "STATE_NAME", "geometry")
             if c in gdf.columns]

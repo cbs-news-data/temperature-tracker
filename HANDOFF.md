@@ -26,14 +26,24 @@ config.py                  shared paths (RAW/REFERENCE/PROCESSED/VIEWER dirs)
 Job 3 is the only consumer of Job 2's output, so presentation can move elsewhere
 (Datawrapper, CMS, separate repo) without touching fetch/reformat/commit.
 
-## ⚠️ Still true: the live GRIB decode has not been verified here
-The transform core is unit-tested on synthetic grids only (10 tests, all passing).
-The GRIB decode and county spatial join still need one real run — the build
-environment has no eccodes/pygrib. **`scripts/validate_live.py` now exists** for
-exactly this (it was the top open item). Run it before publishing; it checks:
-1. pygrib masks NDFD's fill value (guard flags a few cells, not a block).
-2. `apt` arrives as separate sub-daily messages (the bucketing assumes this).
-3. maxt/apt day & night `fcst_date` attribution line up with each message's valid time.
+## ✅ Live decode VERIFIED (2026-06-30, against operational NDFD)
+`scripts/validate_live.py` ran clean against a real CONUS pull:
+1. **Masking PASS** — `guarded=0` on all maxt grids; pygrib masks the off-CONUS
+   cells and no fill value leaks. (Ranges 27–112°F, units=K, ~2.95M cells/grid.)
+2. **Hourly PASS** — apt ships 42 sub-daily messages (hourly, coarsening to 3-hourly
+   by the tail). The day-max / night-min bucketing assumption holds.
+3. **Labels PASS** — maxt and apt day/night `fcst_date` attribution land correctly
+   (warm-night window = 8pm→7am local, labeled to the evening it begins).
+Full build ran on live data: 32,333 places + 3,222 counties, all three products.
+Editorial smell-test passed — Furnace Creek 106°F (hottest), Phoenix 100°F,
+Seattle 67°F; national day1 range 50/92/106°F (min/median/max).
+
+Two things the live run exposed (now fixed — see git log):
+- **TGFTP files are WMO-wrapped** concatenated GRIB2: framed by `****<bytecount>****`
+  + a WMO heading, so the file does NOT start with `GRIB` (first message ~byte 80).
+  pygrib decodes them as-is; the fetch magic-byte check was relaxed to match.
+- **Census downloads now retry** — corporate-network TLS handshakes fail
+  intermittently; `make_reference.py` was single-shot and would die on one hiccup.
 
 ## Decisions made (please don't silently revert these)
 - **Element = NDFD `maxt` for temperature, `apt` for feels-like.** Labeled
@@ -55,7 +65,7 @@ exactly this (it was the top open item). Run it before publishing; it checks:
   overview), dots for drill-down.
 
 ## Resolved since the first handoff
-- ✅ `validate_live.py` smoke test built.
+- ✅ `validate_live.py` smoke test built **and run clean against live NDFD** (see above).
 - ✅ Layout reconciled to repo conventions; scripts use `config.py`; deps moved to
   the `heat` extra in `pyproject.toml` (no more `requirements.txt`).
 - ✅ Product/agg bug fixed (warmnight county min no longer keyed off a renamable prefix).
@@ -64,15 +74,14 @@ exactly this (it was the top open item). Run it before publishing; it checks:
 - ✅ CI split into a durable data pipeline + a separable publish job.
 
 ## Open items (named, not built)
-1. **Run `validate_live.py` against live NDFD** — still the gate before publishing.
-2. **Population join** for the dots — size/filter by community size; also thins the
+1. **Population join** for the dots — size/filter by community size; also thins the
    32k. Needs a population source keyed to GEOID (Census ACS/PEP).
-3. **Per-cell-local-time bucketing mode** (`--tz local`) for a coast-to-coast map.
-4. **Spot-check `name_display`** against the live Gazetteer:
+2. **Per-cell-local-time bucketing mode** (`--tz local`) for a coast-to-coast map.
+3. **Spot-check `name_display`** against the live Gazetteer:
    `places[places.name != places.name_display]` on a sample — it's a heuristic.
-5. **Heat-danger framing option:** NWS **experimental HeatRisk** grid (0–4 health
+4. **Heat-danger framing option:** NWS **experimental HeatRisk** grid (0–4 health
    category) under `ST.expr` — alternative if the story leans on health impact.
-6. **Optional zoom-reveal** for dots (auto-show above a zoom threshold) — left as a
+5. **Optional zoom-reveal** for dots (auto-show above a zoom threshold) — left as a
    manual toggle for now to keep behavior predictable.
 
 ## Data source notes

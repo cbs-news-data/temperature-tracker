@@ -99,9 +99,9 @@ Delete `heat-publish.yml` and the data pipeline is unaffected.
 ## Validation (do this before publishing)
 
 The transform core (`utils/heat.py`) is unit-tested on synthetic grids
-(`uv run pytest`). The live GRIB **decode** is not something tests can cover, so
-run the smoke test against a real pull once before trusting output, and again
-after any NDFD/pygrib change:
+(`uv sync --extra heat --extra dev` once, then `uv run pytest`). The live GRIB
+**decode** is not something tests can cover, so run the smoke test against a real
+pull once before trusting output, and again after any NDFD/pygrib change:
 
 ```bash
 uv run python scripts/validate_live.py
