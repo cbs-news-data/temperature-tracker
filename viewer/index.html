@@ -43,10 +43,14 @@
      so the map keeps the screen and the panel can be collapsed to a slim bar. */
   @media (max-width:560px){
     #panel{top:auto;bottom:0;left:0;right:0;width:auto;max-width:none;
-           max-height:58vh;border-radius:14px 14px 0 0;padding:12px 16px}
+           max-height:55vh;border-radius:14px 14px 0 0;padding:8px 16px 14px}
+    #panel::before{content:"";display:block;width:36px;height:4px;border-radius:2px;
+           background:#ccc;margin:2px auto 8px}         /* drawer grab handle */
+    #phead{cursor:pointer}                              /* tap the whole header to open/close */
+    #panel.collapsed{max-height:none}
     #panel h1{font-size:18px}
     .seg.col{flex-direction:row}
-    #results{max-height:44vh}
+    #results{max-height:40vh}
   }
 </style>
 </head>
@@ -306,10 +310,15 @@ document.querySelectorAll('#measure button').forEach(b=>b.onclick=()=>setMeasure
 document.getElementById('day').onchange=e=>{day=e.target.value;paint();};
 document.getElementById('b-dots').onclick=()=>setLayer('dots');
 document.getElementById('b-geo').onclick=()=>setLayer('geo');
-document.getElementById('collapse').onclick=()=>{
-  const p=document.getElementById('panel');
-  document.getElementById('collapse').textContent=p.classList.toggle('collapsed')?'▸':'▾';
-};
+function setCollapsed(on){
+  document.getElementById('panel').classList.toggle('collapsed', on);
+  document.getElementById('collapse').textContent = on ? '▸' : '▾';
+}
+// Tap anywhere on the header (title or arrow) to open/close the drawer.
+document.getElementById('phead').onclick=()=>
+  setCollapsed(!document.getElementById('panel').classList.contains('collapsed'));
+// On phones, start collapsed so the map owns the screen; tap up to reveal controls.
+if(window.matchMedia && window.matchMedia('(max-width:560px)').matches) setCollapsed(true);
 
 const searchEl=document.getElementById('search'), resultsEl=document.getElementById('results');
 searchEl.oninput=e=>runSearch(e.target.value);
