@@ -85,8 +85,8 @@ phones. Temperature uses a heat-emphasis ramp (yellow at 80°F, orange in the lo
 90s, red in the upper 90s, deepening past 100). Feels-like is colored by the **NWS
 Heat Index categories** (Caution 80–90 / Extreme Caution 90–103 / Danger 103–125 /
 Extreme Danger 125+ °F) — appropriate because feels-like is NWS apparent temperature;
-those categories are *not* applied to raw air temp or overnight lows. Warm nights has
-its own ramp. Thin buckets (`n_hours` < 6) are flagged ⚠ in the day list; no-data
+those categories are *not* applied to raw air temp or overnight lows. Warm nights uses
+the same 10° temperature bands as the daytime scale. Thin buckets (`n_hours` < 6) are flagged ⚠ in the day list; no-data
 places are hidden, not painted the coldest color; place dots have no outline and
 overlap into a field.
 

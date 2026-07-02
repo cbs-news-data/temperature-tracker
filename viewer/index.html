@@ -102,7 +102,8 @@ const DATASETS = {
   feelslike: {prefix:'feelslike', title:'Feels-like temperature (daytime high)',
               below:'#b9d9ec', bands:HEAT_INDEX_BANDS, note:'NWS Heat Index (apparent temp)'},
   warmnight: {prefix:'warmnight', title:'Warm nights (overnight feels-like low)',
-              stops:[[60,'#2c7bb6'],[68,'#abd9e9'],[72,'#ffffbf'],[75,'#fdae61'],[80,'#f46d43'],[85,'#d73027'],[90,'#7f0000']]}
+              below:'#2c7bb6',  // 10° bands, same colors as the daytime scale for consistency
+              bands:[[50,'','#74add1'],[60,'','#abd9e9'],[70,'','#e8f5b0'],[80,'','#fb8c00'],[90,'','#f4511e']]}
 };
 const EMPTY = {type:'FeatureCollection',features:[]};
 
