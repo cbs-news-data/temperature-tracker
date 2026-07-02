@@ -15,6 +15,8 @@
          overflow-y:auto;-webkit-overflow-scrolling:touch}
   #phead{display:flex;align-items:center;justify-content:space-between;gap:8px}
   #panel h1{font-size:20px;line-height:1.15;margin:0}
+  #status{display:none;font-size:12px;color:#555;margin-top:2px}
+  #panel.collapsed #status{display:block}
   #collapse{border:none;background:none;font-size:20px;line-height:1;cursor:pointer;color:#555;padding:2px 6px}
   #controls{margin-top:6px}
   #panel.collapsed{width:auto}
@@ -47,7 +49,9 @@
     #panel::before{content:"";display:block;width:36px;height:4px;border-radius:2px;
            background:#ccc;margin:2px auto 8px}         /* drawer grab handle */
     #phead{cursor:pointer}                              /* tap the whole header to open/close */
-    #panel.collapsed{max-height:none}
+    #panel.collapsed{max-height:none;padding:6px 16px 10px}   /* slim bar when closed */
+    #panel.collapsed::before{margin:2px auto 6px}
+    #panel.collapsed h1{font-size:15px}
     #panel h1{font-size:18px}
     .seg.col{flex-direction:row}
     #results{max-height:40vh}
@@ -57,7 +61,7 @@
 <body>
 <div id="panel">
   <div id="phead">
-    <h1 id="title">U.S. heat forecast</h1>
+    <div><h1 id="title">U.S. heat forecast</h1><div id="status"></div></div>
     <button id="collapse" aria-label="Hide or show controls" title="Hide/show">▾</button>
   </div>
   <div id="controls">
@@ -236,12 +240,17 @@ async function setMeasure(m){
   sel.value=day;
   paint(); legend();
 }
+const MEASURE_SHORT={temp:'Temperature',feelslike:'Feels like',warmnight:'Warm nights'};
+function updateStatus(){  // the tiny line shown on the collapsed mobile drawer
+  document.getElementById('status').textContent=`${MEASURE_SHORT[measure]} — ${labelFor(day)}`;
+}
 function paint(){
   const ds=DATASETS[measure];
   for(const id of ['dots','geo']){
     map.setFilter(id, hasValue(day));
     map.setPaintProperty(id, id==='dots'?'circle-color':'fill-color', paintColor(ds));
   }
+  updateStatus();
 }
 function setLayer(l){ layer=l;
   document.getElementById('b-dots').classList.toggle('on',l==='dots');
