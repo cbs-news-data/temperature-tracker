@@ -45,5 +45,16 @@ jobs:
         with:
           path: _site
 
+      - name: Cancel any stuck Pages deployments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/pages/deployments \
+            --jq '.[] | select(.status == "in_progress" or .status == "queued") | .id' \
+          | while read -r id; do
+              echo "Cancelling stuck Pages deployment: $id"
+              gh api --method POST "repos/${{ github.repository }}/pages/deployments/$id/cancel" || true
+            done
+
       - id: deployment
         uses: actions/deploy-pages@v4
