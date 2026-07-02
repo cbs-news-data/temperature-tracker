@@ -17,9 +17,14 @@ permissions:
   pages: write
   id-token: write
 
+# GitHub Pages allows only ONE live deployment at a time, and a new deployment
+# cancels the one before it. So SERIALIZE these runs (do NOT cancel in-progress):
+# each deploy finishes before the next starts. cancel-in-progress:true was the bug —
+# overlapping runs kept cancelling each other's Pages deployment ("Deployment
+# cancelled") so nothing ever landed.
 concurrency:
-  group: heat-publish
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -44,18 +49,6 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-
-      - name: Cancel any stuck Pages deployments
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api repos/${{ github.repository }}/pages/deployments \
-            --jq '.[] | select(.status == "deployment_in_progress" or .status == "deployment_queued" or .status == "in_progress" or .status == "queued") | .id' \
-          | while read -r id; do
-              echo "Cancelling stuck Pages deployment: $id"
-              gh api --method POST "repos/${{ github.repository }}/pages/deployments/$id/cancel" || true
-            done
-          sleep 5
 
       - id: deployment
         uses: actions/deploy-pages@v4
