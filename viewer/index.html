@@ -10,15 +10,15 @@
   html,body,#map{height:100%;margin:0}
   body{font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif}
   #panel{position:absolute;top:12px;left:12px;z-index:1;background:#fff;
-         padding:12px 14px;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.25);
-         width:272px;max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);
+         padding:11px 12px;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.25);
+         width:236px;max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);
          overflow-y:auto;-webkit-overflow-scrolling:touch}
   #phead{display:flex;align-items:center;justify-content:space-between;gap:8px}
   #panel h1{font-size:20px;line-height:1.15;margin:0}
   #status{display:none;font-size:12px;color:#555;margin-top:2px}
   #panel.collapsed #status{display:block}
-  #collapse{border:1px solid #ddd;background:#f2f2f2;border-radius:16px;font-size:13px;font-weight:600;
-            line-height:1;cursor:pointer;color:#444;padding:7px 11px;white-space:nowrap;flex:0 0 auto}
+  #collapse{border:1px solid #ddd;background:#f2f2f2;border-radius:16px;font-size:14px;font-weight:600;
+            line-height:1;cursor:pointer;color:#444;padding:8px 13px;white-space:nowrap;flex:0 0 auto}
   #controls{margin-top:6px}
   #panel.collapsed{width:auto}
   #panel.collapsed #controls{display:none}
@@ -42,23 +42,23 @@
   #results div:last-child{border-bottom:none}
   #results div:hover,#results div.active{background:#f0e6e6}
   #results .none{color:#999;cursor:default}
-  /* Mobile: dock the panel as a bottom sheet and lay measure buttons in a row,
-     so the map keeps the screen and the panel can be collapsed to a slim bar. */
+  /* Mobile: dock the panel as a TOP sheet (over Canada/ocean, not the hot data),
+     collapsed to an obvious slim bar; measure buttons go in a row. */
   @media (max-width:560px){
-    #panel{top:auto;bottom:0;left:0;right:0;width:auto;max-width:none;
-           max-height:55vh;border-radius:14px 14px 0 0;padding:8px 16px 14px;
+    #panel{top:0;bottom:auto;left:0;right:0;width:auto;max-width:none;
+           max-height:64vh;border-radius:0 0 14px 14px;padding:8px 16px 12px;
            animation:drawerNudge 0.9s ease 0.6s 1}   /* one gentle bob on load to say "I open" */
-    @keyframes drawerNudge{0%,100%{transform:translateY(0)}45%{transform:translateY(-8px)}}
+    @keyframes drawerNudge{0%,100%{transform:translateY(0)}45%{transform:translateY(7px)}}
     @media (prefers-reduced-motion:reduce){ #panel{animation:none} }
-    #panel::before{content:"";display:block;width:36px;height:4px;border-radius:2px;
-           background:#ccc;margin:2px auto 8px}         /* drawer grab handle */
+    #panel::after{content:"";display:block;width:40px;height:4px;border-radius:2px;
+           background:#ccc;margin:10px auto 2px}        /* pull-down handle at the bar's bottom */
     #phead{cursor:pointer}                              /* tap the whole header to open/close */
-    #panel.collapsed{max-height:none;padding:6px 16px 10px}   /* slim bar when closed */
-    #panel.collapsed::before{margin:2px auto 6px}
-    #panel.collapsed h1{font-size:15px}
+    #panel.collapsed{max-height:none;padding:10px 16px 12px}   /* slim (but obvious) bar when closed */
+    #panel.collapsed h1{font-size:17px}
+    #panel.collapsed #status{font-size:13px}
     #panel h1{font-size:18px}
     .seg.col{flex-direction:row}
-    #results{max-height:40vh}
+    #results{max-height:50vh}
   }
 </style>
 </head>
@@ -66,7 +66,7 @@
 <div id="panel">
   <div id="phead">
     <div><h1 id="title">U.S. heat forecast</h1><div id="status"></div></div>
-    <button id="collapse" aria-label="Hide or show controls" title="Hide/show">Hide ⌄</button>
+    <button id="collapse" aria-label="Hide or show controls" title="Hide/show">Hide ⌃</button>
   </div>
   <div id="controls">
     <label for="search">Find a place</label>
@@ -152,7 +152,8 @@ const basemap = {version:8,
   layers:[{id:'bg',type:'raster',source:'carto'}]};
 
 const map=new maplibregl.Map({container:'map',style:basemap,center:[-97,38],zoom:3.6});
-map.addControl(new maplibregl.NavigationControl());
+map.addControl(new maplibregl.NavigationControl(), 'bottom-right');  // clear of the top panel
+const IS_MOBILE = window.matchMedia && window.matchMedia('(max-width:560px)').matches;
 
 // Counties give the clean national overview; dots are for drill-down ("find my town").
 let measure='temp', layer='geo', day='day1', days=[];
@@ -211,6 +212,9 @@ function popupHTML(name, props){
 }
 
 map.on('load', async ()=>{
+  // On phones the panel docks at the top; pad the camera so the US data frames
+  // below the collapsed bar instead of hiding under it.
+  if(IS_MOBILE) map.setPadding({top:64,bottom:0,left:0,right:0});
   map.addSource('pts',{type:'geojson',data:EMPTY});
   map.addSource('cty',{type:'geojson',data:EMPTY});
   map.addLayer({id:'geo',type:'fill',source:'cty',
@@ -325,13 +329,13 @@ document.getElementById('b-dots').onclick=()=>setLayer('dots');
 document.getElementById('b-geo').onclick=()=>setLayer('geo');
 function setCollapsed(on){
   document.getElementById('panel').classList.toggle('collapsed', on);
-  document.getElementById('collapse').textContent = on ? 'Controls ⌃' : 'Hide ⌄';
+  document.getElementById('collapse').textContent = on ? 'Controls ⌄' : 'Hide ⌃';
 }
 // Tap anywhere on the header (title or arrow) to open/close the drawer.
 document.getElementById('phead').onclick=()=>
   setCollapsed(!document.getElementById('panel').classList.contains('collapsed'));
-// On phones, start collapsed so the map owns the screen; tap up to reveal controls.
-if(window.matchMedia && window.matchMedia('(max-width:560px)').matches) setCollapsed(true);
+// On phones the drawer starts collapsed so the map owns the screen; tap to reveal.
+if(IS_MOBILE) setCollapsed(true);
 
 const searchEl=document.getElementById('search'), resultsEl=document.getElementById('results');
 searchEl.oninput=e=>runSearch(e.target.value);
