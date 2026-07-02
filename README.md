@@ -76,10 +76,12 @@ replaces it with its five boroughs (`place_id` = borough-county GEOID) for detai
 ## Viewer
 
 `viewer/index.html` is a self-contained MapLibre map: a **Find a place** search
-box (type 2+ chars → flies to the community and shows its full forecast), a
-**Measure** dropdown (Temperature / Feels-like / Warm nights), a **Counties/Places**
-toggle (counties is the default national overview; places are for drill-down), a
-**Region** switcher (CONUS / Alaska / Hawaii), and a **Day** selector. Temperature and feels-like share a heat-emphasis ramp (yellow at
+box (type 2+ chars → flies to the community and shows its full forecast), **Measure**
+buttons (High temp / Feels like / Overnight low), a **Counties/Places** toggle
+(counties is the default national overview; places are for drill-down), and a **Day**
+selector. Alaska and Hawaii are in the data — reach them via search or by panning.
+The layout is responsive: a left panel on desktop, a collapsible bottom sheet on
+phones. Temperature and feels-like share a heat-emphasis ramp (yellow at
 80°F, orange in the low 90s, red in the upper 90s, deepening past 100); warm nights
 has its own. Thin buckets (`n_hours` < 6) are flagged ⚠ in the day list; no-data
 places are hidden, not painted the coldest color; place dots have no outline and
