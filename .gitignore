@@ -10,10 +10,9 @@ venv/
 env/
 .uv/
 
-# Secrets — never commit
+# Secrets — never commit (.env.example included; recreate locally if ever needed)
 .env
 .env.*
-!.env.example
 secrets.json
 .secrets
 
