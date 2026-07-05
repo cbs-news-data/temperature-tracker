@@ -191,7 +191,8 @@ def accumulate_counties(county_vals, csub, geoid_col, lats1d, lons1d, days, deci
 
 
 def write_counties(counties, geoid_col, name_col, county_vals, days, outdir: Path,
-                   prefix, county_agg, write_csv=False) -> None:
+                   prefix, county_agg, element_label, issued_utc=None,
+                   write_csv=False) -> None:
     result = counties[[geoid_col] + ([name_col] if name_col else [])].copy()
     for d in days:
         vals = county_vals.get(d["fcst_date"], {})
@@ -201,8 +202,16 @@ def write_counties(counties, geoid_col, name_col, county_vals, days, outdir: Pat
     geo = counties[[geoid_col, "geometry"]].merge(result, on=geoid_col, how="left")
     # Cap coordinate precision: the source is 1:20M cartographic boundaries (~1km
     # native accuracy) — full-precision floats are dead weight in the payload.
-    geo.to_file(outdir / f"{prefix}_counties.geojson", driver="GeoJSON",
-                COORDINATE_PRECISION="4")
+    path = outdir / f"{prefix}_counties.geojson"
+    geo.to_file(path, driver="GeoJSON", COORDINATE_PRECISION="4")
+    # Inject the same metadata block the points file carries (day labels +
+    # issuance). Counties load FIRST in consumers that lazy-load the points, so
+    # they need the labels too; GDAL can't write FC-level metadata, so post-add it.
+    gj = json.loads(path.read_text())
+    gj["metadata"] = {"element": element_label, "days": [day_meta(d) for d in days]}
+    if issued_utc is not None:
+        gj["metadata"]["issued_utc"] = issued_utc.isoformat()
+    path.write_text(json.dumps(gj))
     csv_note = f", {prefix}_counties.csv" if write_csv else ""
     print(f"counties: {len(result):,} polygons (agg={county_agg}) -> "
           f"{prefix}_counties.geojson{csv_note}")
@@ -326,7 +335,7 @@ def main() -> int:
         write_points(out, gdays, outdir, prefix, prod["label"], issued_utc, args.csv)
     if want_counties:
         write_counties(counties, geoid_col, name_col, county_vals, gdays, outdir,
-                       prefix, prod["county_agg"], args.csv)
+                       prefix, prod["county_agg"], prod["label"], issued_utc, args.csv)
     return 0
 
 

@@ -78,10 +78,11 @@ interface; breaking changes require coordinating with every consumer:
 - **Points features:** `properties = { name_state, day1..dayN }` — values are whole
   °F ints or `null` (no data); N varies (typically 6–7). Point coords, 4 decimals.
 - **Counties features:** `properties = { GEOID, NAME, day1..dayN }` — same value rules.
-- **Metadata (points files):** `metadata.days[]` maps `dayN` keys to `seq`,
-  `fcst_date` (the date the value describes), `valid_utc`; apt products add
-  `n_hours` + `valid_start_utc` (thin-bucket flagging). `metadata.issued_utc` =
-  when NWS generated the forecast.
+- **Metadata (BOTH points and counties files):** `metadata.days[]` maps `dayN`
+  keys to `seq`, `fcst_date` (the date the value describes), `valid_utc`; apt
+  products add `n_hours` + `valid_start_utc` (thin-bucket flagging).
+  `metadata.issued_utc` = when NWS generated the forecast. Present on counties
+  too so lazy-loading consumers get day labels from the first (small) fetch.
 - **Semantics to preserve in any renderer:** label days off `fcst_date`, never the
   `dayN` index ("today" expires mid-day); warm-night `fcst_date` = the evening the
   night begins; feels-like is NWS apparent temperature (Heat Index categories apply
