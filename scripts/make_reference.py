@@ -66,6 +66,14 @@ NAME_OVERRIDES = {
     "Anaconda-Deer Lodge County": "Anaconda",
 }
 
+# Common-name overrides applied AFTER cleaning, keyed (state, name_display) — for
+# places whose official Census name isn't what viewers know them as. State-keyed
+# because e.g. "Boise City" is also the real, correct name of Boise City, OK.
+DISPLAY_OVERRIDES = {
+    ("HI", "Urban Honolulu"): "Honolulu",
+    ("ID", "Boise City"): "Boise",
+}
+
 
 def clean_place_name(name: str) -> str:
     n = _BALANCE.sub("", str(name).strip())
@@ -97,7 +105,9 @@ def build_places(min_sqmi: float, incorporated: bool) -> pd.DataFrame:
     print(f"GET {GAZ}")
     z = zipfile.ZipFile(io.BytesIO(get_bytes(GAZ)))
     name = next(n for n in z.namelist() if n.lower().endswith(".txt"))
-    df = pd.read_csv(z.open(name), sep="\t", dtype=str, encoding="latin-1")
+    # The Gazetteer is UTF-8 (accented names: Cañon City, Doña Ana, Bayamón);
+    # latin-1 here silently mojibakes them ("CaÃ±on City").
+    df = pd.read_csv(z.open(name), sep="\t", dtype=str, encoding="utf-8")
     df.columns = [c.strip() for c in df.columns]  # the Gazetteer pads some headers
     for c in ("INTPTLAT", "INTPTLONG", "ALAND_SQMI"):
         df[c] = pd.to_numeric(df[c].str.strip(), errors="coerce")
@@ -111,6 +121,8 @@ def build_places(min_sqmi: float, incorporated: bool) -> pd.DataFrame:
         "lat": df["INTPTLAT"], "lon": df["INTPTLONG"],
     }).dropna(subset=["lat", "lon"])
     out["name_display"] = out["name"].map(clean_place_name)        # descriptor stripped
+    out["name_display"] = [DISPLAY_OVERRIDES.get((s, n), n)
+                           for s, n in zip(out["state"], out["name_display"])]
     out["name_state"] = out["name_display"] + ", " + out["state"]  # "Phoenix, AZ" popup label
     return out[["place_id", "name", "name_display", "name_state", "state", "lat", "lon"]]
 

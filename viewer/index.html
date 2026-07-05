@@ -339,8 +339,18 @@ function selectPlace(p){
 
 document.querySelectorAll('#measure button').forEach(b=>b.onclick=()=>setMeasure(b.dataset.m));
 document.getElementById('day').onchange=e=>{day=e.target.value;paint();};
-document.getElementById('b-dots').onclick=()=>setLayer('dots');
-document.getElementById('b-geo').onclick=()=>setLayer('geo');
+
+// Zoom-reveal: counties are the national overview; once you zoom in far enough
+// to tell communities apart, Places appear automatically (and counties return on
+// zoom-out). Tapping a Layer button takes manual control for the rest of the visit.
+const DOTS_ZOOM=5.5;
+let layerAuto=true;
+map.on('zoomend',()=>{ if(!layerAuto) return;
+  const want=map.getZoom()>=DOTS_ZOOM?'dots':'geo';
+  if(want!==layer) setLayer(want);
+});
+document.getElementById('b-dots').onclick=()=>{layerAuto=false;setLayer('dots');};
+document.getElementById('b-geo').onclick=()=>{layerAuto=false;setLayer('geo');};
 function setCollapsed(on){
   document.getElementById('panel').classList.toggle('collapsed', on);
   document.getElementById('collapse').textContent = on ? 'Controls ⌄' : 'Hide ⌃';

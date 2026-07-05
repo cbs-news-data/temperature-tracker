@@ -931,7 +931,7 @@ place_id,name,name_display,name_state,state,lat,lon
 0280660,Unalakleet city,Unalakleet,"Unalakleet, AK",AK,63.892966,-160.795819
 0280770,Unalaska city,Unalaska,"Unalaska, AK",AK,53.910255,-166.529041
 0281320,Upper Kalskag city,Upper Kalskag,"Upper Kalskag, AK",AK,61.539159,-160.350935
-0281920,UtqiagÌvik city,UtqiagÌvik,"UtqiagÌvik, AK",AK,71.264377,-156.753678
+0281920,Utqiaġvik city,Utqiaġvik,"Utqiaġvik, AK",AK,71.264377,-156.753678
 0282200,Valdez city,Valdez,"Valdez, AK",AK,61.083621,-146.317179
 0282420,Venetie CDP,Venetie,"Venetie, AK",AK,67.020691,-146.374276
 0282750,Wainwright city,Wainwright,"Wainwright, AK",AK,70.658232,-159.985214
@@ -2762,7 +2762,7 @@ place_id,name,name_display,name_state,state,lat,lon
 0638772,Knightsen CDP,Knightsen,"Knightsen, CA",CA,37.962426,-121.64858
 0638786,Knights Ferry CDP,Knights Ferry,"Knights Ferry, CA",CA,37.821152,-120.669089
 0638800,Knights Landing CDP,Knights Landing,"Knights Landing, CA",CA,38.797972,-121.717447
-0639003,La CaÃ±ada Flintridge city,La CaÃ±ada Flintridge,"La CaÃ±ada Flintridge, CA",CA,34.20969,-118.200139
+0639003,La Cañada Flintridge city,La Cañada Flintridge,"La Cañada Flintridge, CA",CA,34.20969,-118.200139
 0639045,La Crescenta-Montrose CDP,La Crescenta-Montrose,"La Crescenta-Montrose, CA",CA,34.233016,-118.235774
 0639052,La Cresta CDP,La Cresta,"La Cresta, CA",CA,35.397201,-118.989312
 0639094,Ladera CDP,Ladera,"Ladera, CA",CA,37.399875,-122.198971
@@ -3166,7 +3166,7 @@ place_id,name,name_display,name_state,state,lat,lon
 0657244,Pine Mountain Lake CDP,Pine Mountain Lake,"Pine Mountain Lake, CA",CA,37.85954,-120.181662
 0657260,Pine Valley CDP,Pine Valley,"Pine Valley, CA",CA,32.841513,-116.510706
 0657288,Pinole city,Pinole,"Pinole, CA",CA,38.001702,-122.318488
-0657302,PiÃ±on Hills CDP,PiÃ±on Hills,"PiÃ±on Hills, CA",CA,34.445607,-117.623563
+0657302,Piñon Hills CDP,Piñon Hills,"Piñon Hills, CA",CA,34.445607,-117.623563
 0657330,Pioneer CDP,Pioneer,"Pioneer, CA",CA,38.433759,-120.586077
 0657372,Piru CDP,Piru,"Piru, CA",CA,34.405678,-118.805097
 0657414,Pismo Beach city,Pismo Beach,"Pismo Beach, CA",CA,35.153173,-120.673874
@@ -3720,7 +3720,7 @@ place_id,name,name_display,name_state,state,lat,lon
 0810985,Byers CDP,Byers,"Byers, CO",CO,39.709435,-104.212848
 0811260,Calhan town,Calhan,"Calhan, CO",CO,39.034031,-104.30021
 0811645,Campo town,Campo,"Campo, CO",CO,37.104711,-102.578798
-0811810,CaÃ±on City city,CaÃ±on City,"CaÃ±on City, CO",CO,38.441886,-105.220899
+0811810,Cañon City city,Cañon City,"Cañon City, CO",CO,38.441886,-105.220899
 0811975,Capulin CDP,Capulin,"Capulin, CO",CO,37.281886,-106.104946
 0812030,Carbonate town,Carbonate,"Carbonate, CO",CO,39.746462,-107.340127
 0812045,Carbondale town,Carbondale,"Carbondale, CO",CO,39.395559,-107.21502
@@ -6199,7 +6199,7 @@ place_id,name,name_display,name_state,state,lat,lon
 1569238,Seaview CDP,Seaview,"Seaview, HI",HI,19.406718,-154.921448
 1570280,Tiki Gardens CDP,Tiki Gardens,"Tiki Gardens, HI",HI,19.528699,-155.003087
 1570700,Ualapue CDP,Ualapue,"Ualapue, HI",HI,21.071883,-156.834987
-1571550,Urban Honolulu CDP,Urban Honolulu,"Urban Honolulu, HI",HI,21.324347,-157.84764
+1571550,Urban Honolulu CDP,Honolulu,"Honolulu, HI",HI,21.324347,-157.84764
 1572350,Volcano CDP,Volcano,"Volcano, HI",HI,19.486411,-155.277414
 1572468,Volcano Golf Course CDP,Volcano Golf Course,"Volcano Golf Course, HI",HI,19.442375,-155.278833
 1572650,Wahiawa CDP,Wahiawa,"Wahiawa, HI",HI,21.500665,-158.017964
@@ -6249,7 +6249,7 @@ place_id,name,name_display,name_state,state,lat,lon
 1608290,Blanchard CDP,Blanchard,"Blanchard, ID",ID,48.01099,-116.99521
 1608470,Bliss city,Bliss,"Bliss, ID",ID,42.924284,-114.947516
 1608560,Bloomington city,Bloomington,"Bloomington, ID",ID,42.19099,-111.402756
-1608830,Boise City city,Boise City,"Boise City, ID",ID,43.599335,-116.229817
+1608830,Boise City city,Boise,"Boise, ID",ID,43.599335,-116.229817
 1609370,Bonners Ferry city,Bonners Ferry,"Bonners Ferry, ID",ID,48.693374,-116.31836
 1609730,Bovill city,Bovill,"Bovill, ID",ID,46.858679,-116.393551
 1610450,Bruneau CDP,Bruneau,"Bruneau, ID",ID,42.872792,-115.795239
@@ -17894,13 +17894,13 @@ place_id,name,name_display,name_state,state,lat,lon
 3509630,Buckhorn CDP,Buckhorn,"Buckhorn, NM",NM,33.03148,-108.69439
 3509980,Butterfield Park CDP,Butterfield Park,"Butterfield Park, NM",NM,32.405228,-106.645663
 3510050,Caballo CDP,Caballo,"Caballo, NM",NM,32.980627,-107.307479
-3510470,CaÃ±ada de los Alamos CDP,CaÃ±ada de los Alamos,"CaÃ±ada de los Alamos, NM",NM,35.592655,-105.859754
+3510470,Cañada de los Alamos CDP,Cañada de los Alamos,"Cañada de los Alamos, NM",NM,35.592655,-105.859754
 3510592,Candy Kitchen CDP,Candy Kitchen,"Candy Kitchen, NM",NM,34.909301,-108.496452
 3510610,Canjilon CDP,Canjilon,"Canjilon, NM",NM,36.483678,-106.42402
 3510750,Cannon AFB CDP,Cannon AFB,"Cannon AFB, NM",NM,34.382137,-103.316944
-3510770,CaÃ±on CDP,CaÃ±on,"CaÃ±on, NM",NM,35.671759,-106.752682
-3511256,CaÃ±oncito CDP,CaÃ±oncito,"CaÃ±oncito, NM",NM,35.535238,-105.838875
-3511310,CaÃ±ones CDP,CaÃ±ones,"CaÃ±ones, NM",NM,36.176434,-106.419355
+3510770,Cañon CDP,Cañon,"Cañon, NM",NM,35.671759,-106.752682
+3511256,Cañoncito CDP,Cañoncito,"Cañoncito, NM",NM,35.535238,-105.838875
+3511310,Cañones CDP,Cañones,"Cañones, NM",NM,36.176434,-106.419355
 3511520,Canova CDP,Canova,"Canova, NM",NM,36.167839,-105.988802
 3511800,Capitan village,Capitan,"Capitan, NM",NM,33.539248,-105.598242
 3512010,Capulin CDP,Capulin,"Capulin, NM",NM,36.746498,-104.00213
@@ -17964,7 +17964,7 @@ place_id,name,name_display,name_state,state,lat,lon
 3520480,Des Moines village,Des Moines,"Des Moines, NM",NM,36.761265,-103.834074
 3520620,Dexter town,Dexter,"Dexter, NM",NM,33.194827,-104.368898
 3520830,Dixon CDP,Dixon,"Dixon, NM",NM,36.179591,-105.891039
-3521110,DoÃ±a Ana CDP,DoÃ±a Ana,"DoÃ±a Ana, NM",NM,32.393941,-106.817714
+3521110,Doña Ana CDP,Doña Ana,"Doña Ana, NM",NM,32.393941,-106.817714
 3521180,Dora village,Dora,"Dora, NM",NM,33.925866,-103.33855
 3521390,Dulce CDP,Dulce,"Dulce, NM",NM,36.953773,-107.000284
 3521810,Duran CDP,Duran,"Duran, NM",NM,34.463621,-105.380715
@@ -17988,7 +17988,7 @@ place_id,name,name_display,name_state,state,lat,lon
 3524960,Ensenada CDP,Ensenada,"Ensenada, NM",NM,36.730925,-106.536813
 3525100,Escondida CDP,Escondida,"Escondida, NM",NM,34.101314,-106.897407
 3525135,Escudilla Bonita CDP,Escudilla Bonita,"Escudilla Bonita, NM",NM,34.110067,-109.02277
-3525170,EspaÃ±ola city,EspaÃ±ola,"EspaÃ±ola, NM",NM,36.003959,-106.070131
+3525170,Española city,Española,"Española, NM",NM,36.003959,-106.070131
 3525380,Estancia town,Estancia,"Estancia, NM",NM,34.764273,-106.038558
 3525450,Eunice city,Eunice,"Eunice, NM",NM,32.436147,-103.149043
 3525590,Fairacres CDP,Fairacres,"Fairacres, NM",NM,32.304724,-106.836643
@@ -18180,8 +18180,8 @@ place_id,name,name_display,name_state,state,lat,lon
 3555595,Peak Place CDP,Peak Place,"Peak Place, NM",NM,35.791172,-105.943204
 3555605,Pecan Park CDP,Pecan Park,"Pecan Park, NM",NM,32.270417,-107.67399
 3555620,Pecos village,Pecos,"Pecos, NM",NM,35.575706,-105.678407
-3555830,PeÃ±a Blanca CDP,PeÃ±a Blanca,"PeÃ±a Blanca, NM",NM,35.570919,-106.331955
-3555900,PeÃ±asco CDP,PeÃ±asco,"PeÃ±asco, NM",NM,36.17032,-105.69072
+3555830,Peña Blanca CDP,Peña Blanca,"Peña Blanca, NM",NM,35.570919,-106.331955
+3555900,Peñasco CDP,Peñasco,"Peñasco, NM",NM,36.17032,-105.69072
 3556180,Peralta town,Peralta,"Peralta, NM",NM,34.828351,-106.685951
 3556748,Picacho Hills CDP,Picacho Hills,"Picacho Hills, NM",NM,32.315804,-106.878497
 3556810,Picuris Pueblo CDP,Picuris Pueblo,"Picuris Pueblo, NM",NM,36.200146,-105.723504
@@ -27160,7 +27160,7 @@ place_id,name,name_display,name_state,state,lat,lon
 4813828,Center Point CDP,Center Point,"Center Point, TX",TX,29.93455,-99.047785
 4813900,Centerville city,Centerville,"Centerville, TX",TX,31.258315,-95.979399
 4813972,Central Gardens CDP,Central Gardens,"Central Gardens, TX",TX,29.987973,-94.021651
-4814038,CÃ©sar ChÃ¡vez CDP,CÃ©sar ChÃ¡vez,"CÃ©sar ChÃ¡vez, TX",TX,26.310953,-98.111875
+4814038,César Chávez CDP,César Chávez,"César Chávez, TX",TX,26.310953,-98.111875
 4814224,Chandler city,Chandler,"Chandler, TX",TX,32.30688,-95.473689
 4814236,Channelview CDP,Channelview,"Channelview, TX",TX,29.793023,-95.114482
 4814260,Channing city,Channing,"Channing, TX",TX,35.681901,-102.332244
@@ -27848,7 +27848,7 @@ place_id,name,name_display,name_state,state,lat,lon
 4843822,Longoria CDP,Longoria,"Longoria, TX",TX,26.30238,-98.642489
 4843888,Longview city,Longview,"Longview, TX",TX,32.520234,-94.761114
 4843948,Loop CDP,Loop,"Loop, TX",TX,32.914189,-102.414709
-4843960,LopeÃ±o CDP,LopeÃ±o,"LopeÃ±o, TX",TX,26.711834,-99.100966
+4843960,Lopeño CDP,Lopeño,"Lopeño, TX",TX,26.711834,-99.100966
 4843972,Lopezville CDP,Lopezville,"Lopezville, TX",TX,26.245241,-98.153746
 4843996,Loraine town,Loraine,"Loraine, TX",TX,32.408651,-100.712515
 4844020,Lorena city,Lorena,"Lorena, TX",TX,31.383111,-97.210204
@@ -28352,8 +28352,8 @@ place_id,name,name_display,name_state,state,lat,lon
 4864244,St. Paul CDP,St. Paul,"St. Paul, TX",TX,28.090962,-97.563184
 4864268,Salado village,Salado,"Salado, TX",TX,30.948383,-97.528337
 4864307,Salida del Sol Estates CDP,Salida del Sol Estates,"Salida del Sol Estates, TX",TX,26.325684,-98.446923
-4864316,SalineÃ±o CDP,SalineÃ±o,"SalineÃ±o, TX",TX,26.517553,-99.112058
-4864322,SalineÃ±o North CDP,SalineÃ±o North,"SalineÃ±o North, TX",TX,26.527223,-99.094956
+4864316,Salineño CDP,Salineño,"Salineño, TX",TX,26.517553,-99.112058
+4864322,Salineño North CDP,Salineño North,"Salineño North, TX",TX,26.527223,-99.094956
 4864442,Sammy Martinez CDP,Sammy Martinez,"Sammy Martinez, TX",TX,26.432851,-98.751298
 4864448,Samnorwood CDP,Samnorwood,"Samnorwood, TX",TX,35.050114,-100.281401
 4864460,Sam Rayburn CDP,Sam Rayburn,"Sam Rayburn, TX",TX,31.077263,-94.025528
@@ -32048,10 +32048,10 @@ place_id,name,name_display,name_state,state,lat,lon
 7201089,Aguilita comunidad,Aguilita,"Aguilita, PR",PR,18.028544,-66.534059
 7201218,Aibonito zona urbana,Aibonito,"Aibonito, PR",PR,18.140051,-66.266355
 7201863,Alianza comunidad,Alianza,"Alianza, PR",PR,18.453449,-66.855599
-7202680,AÃ±asco zona urbana,AÃ±asco,"AÃ±asco, PR",PR,18.285525,-67.14012
+7202680,Añasco zona urbana,Añasco,"Añasco, PR",PR,18.285525,-67.14012
 7203024,Animas comunidad,Animas,"Animas, PR",PR,18.445744,-66.636436
 7203174,Anon Raices comunidad,Anon Raices,"Anon Raices, PR",PR,18.139059,-66.58577
-7203196,AntÃ³n RuÃ­z comunidad,AntÃ³n RuÃ­z,"AntÃ³n RuÃ­z, PR",PR,18.188269,-65.807881
+7203196,Antón Ruíz comunidad,Antón Ruíz,"Antón Ruíz, PR",PR,18.188269,-65.807881
 7203368,Arecibo zona urbana,Arecibo,"Arecibo, PR",PR,18.45486,-66.735442
 7203927,Arroyo zona urbana,Arroyo,"Arroyo, PR",PR,17.969618,-66.059899
 7204620,Bairoa La Veinticinco comunidad,Bairoa La Veinticinco,"Bairoa La Veinticinco, PR",PR,18.263567,-66.021499
@@ -32061,18 +32061,18 @@ place_id,name,name_display,name_state,state,lat,lon
 7205346,Barceloneta zona urbana,Barceloneta,"Barceloneta, PR",PR,18.452974,-66.538085
 7205690,Barranquitas zona urbana,Barranquitas,"Barranquitas, PR",PR,18.184765,-66.310174
 7206421,Bartolo comunidad,Bartolo,"Bartolo, PR",PR,18.362003,-65.841366
-7206593,BayamÃ³n zona urbana,BayamÃ³n,"BayamÃ³n, PR",PR,18.380055,-66.163253
-7206679,BayamÃ³n comunidad,BayamÃ³n,"BayamÃ³n, PR",PR,18.178136,-66.109726
-7207496,BenÃ­tez comunidad,BenÃ­tez,"BenÃ­tez, PR",PR,18.272533,-65.878831
+7206593,Bayamón zona urbana,Bayamón,"Bayamón, PR",PR,18.380055,-66.163253
+7206679,Bayamón comunidad,Bayamón,"Bayamón, PR",PR,18.178136,-66.109726
+7207496,Benítez comunidad,Benítez,"Benítez, PR",PR,18.272533,-65.878831
 7207668,Betances comunidad,Betances,"Betances, PR",PR,18.029568,-67.133546
-7207969,BoquerÃ³n comunidad,BoquerÃ³n,"BoquerÃ³n, PR",PR,18.034077,-67.171443
-7208099,BoquerÃ³n comunidad,BoquerÃ³n,"BoquerÃ³n, PR",PR,18.200145,-65.843879
-7208700,BreÃ±as comunidad,BreÃ±as,"BreÃ±as, PR",PR,18.473299,-66.334609
+7207969,Boquerón comunidad,Boquerón,"Boquerón, PR",PR,18.034077,-67.171443
+7208099,Boquerón comunidad,Boquerón,"Boquerón, PR",PR,18.200145,-65.843879
+7208700,Breñas comunidad,Breñas,"Breñas, PR",PR,18.473299,-66.334609
 7208722,Brisas del Campanero comunidad,Brisas del Campanero,"Brisas del Campanero, PR",PR,18.431598,-66.226068
 7209087,Buena Vista comunidad,Buena Vista,"Buena Vista, PR",PR,17.996468,-66.05155
 7209250,Buena Vista comunidad,Buena Vista,"Buena Vista, PR",PR,18.115311,-65.799057
-7209603,BÃºfalo comunidad,BÃºfalo,"BÃºfalo, PR",PR,18.416531,-66.57501
-7209689,CabÃ¡n comunidad,CabÃ¡n,"CabÃ¡n, PR",PR,18.445009,-67.136271
+7209603,Búfalo comunidad,Búfalo,"Búfalo, PR",PR,18.416531,-66.57501
+7209689,Cabán comunidad,Cabán,"Cabán, PR",PR,18.445009,-67.136271
 7209861,Cabo Rojo zona urbana,Cabo Rojo,"Cabo Rojo, PR",PR,18.086717,-67.148266
 7210048,Cacao comunidad,Cacao,"Cacao, PR",PR,18.452026,-66.956314
 7210334,Caguas zona urbana,Caguas,"Caguas, PR",PR,18.232149,-66.039035
@@ -32086,13 +32086,13 @@ place_id,name,name_display,name_state,state,lat,lon
 7212560,Candelaria Arenas comunidad,Candelaria Arenas,"Candelaria Arenas, PR",PR,18.417251,-66.220527
 7212568,Candelero Abajo comunidad,Candelero Abajo,"Candelero Abajo, PR",PR,18.094167,-65.816456
 7212613,Candelero Arriba comunidad,Candelero Arriba,"Candelero Arriba, PR",PR,18.101667,-65.834242
-7212806,CaÃ±o Martin PeÃ±a comunidad,CaÃ±o Martin PeÃ±a,"CaÃ±o Martin PeÃ±a, PR",PR,18.430367,-66.05007
-7212828,CanÃ³vanas zona urbana,CanÃ³vanas,"CanÃ³vanas, PR",PR,18.369209,-65.900894
+7212806,Caño Martin Peña comunidad,Caño Martin Peña,"Caño Martin Peña, PR",PR,18.430367,-66.05007
+7212828,Canóvanas zona urbana,Canóvanas,"Canóvanas, PR",PR,18.369209,-65.900894
 7213065,Canovanillas comunidad,Canovanillas,"Canovanillas, PR",PR,18.334528,-65.903963
 7213925,Capitanejo comunidad,Capitanejo,"Capitanejo, PR",PR,18.013122,-66.535641
 7214290,Carolina zona urbana,Carolina,"Carolina, PR",PR,18.412076,-65.979806
 7214634,Carrizales comunidad,Carrizales,"Carrizales, PR",PR,18.481088,-66.78791
-7215193,CataÃ±o zona urbana,CataÃ±o,"CataÃ±o, PR",PR,18.438069,-66.138834
+7215193,Cataño zona urbana,Cataño,"Cataño, PR",PR,18.438069,-66.138834
 7215494,Cayey zona urbana,Cayey,"Cayey, PR",PR,18.115296,-66.162877
 7215623,Cayuco comunidad,Cayuco,"Cayuco, PR",PR,18.29229,-66.734847
 7215924,Ceiba zona urbana,Ceiba,"Ceiba, PR",PR,18.264971,-65.648816
@@ -32104,10 +32104,10 @@ place_id,name,name_display,name_state,state,lat,lon
 7218074,Cidra zona urbana,Cidra,"Cidra, PR",PR,18.177505,-66.158486
 7218719,Coamo zona urbana,Coamo,"Coamo, PR",PR,18.078302,-66.363161
 7218891,Coco comunidad,Coco,"Coco, PR",PR,18.001277,-66.2607
-7219665,ComerÃ­o zona urbana,ComerÃ­o,"ComerÃ­o, PR",PR,18.219489,-66.225053
+7219665,Comerío zona urbana,Comerío,"Comerío, PR",PR,18.219489,-66.225053
 7219837,Comunas comunidad,Comunas,"Comunas, PR",PR,18.084569,-65.843537
-7220310,CoquÃ­ comunidad,CoquÃ­,"CoquÃ­, PR",PR,17.979286,-66.225551
-7220353,CorazÃ³n comunidad,CorazÃ³n,"CorazÃ³n, PR",PR,17.994008,-66.083355
+7220310,Coquí comunidad,Coquí,"Coquí, PR",PR,17.979286,-66.225551
+7220353,Corazón comunidad,Corazón,"Corazón, PR",PR,17.994008,-66.083355
 7220482,Corcovado comunidad,Corcovado,"Corcovado, PR",PR,18.461018,-66.777761
 7220783,Corozal zona urbana,Corozal,"Corozal, PR",PR,18.340988,-66.312464
 7220998,Corral Viejo comunidad,Corral Viejo,"Corral Viejo, PR",PR,18.075455,-66.652336
@@ -32119,40 +32119,40 @@ place_id,name,name_display,name_state,state,lat,lon
 7224008,Dorado zona urbana,Dorado,"Dorado, PR",PR,18.468976,-66.271108
 7224395,Duque comunidad,Duque,"Duque, PR",PR,18.237407,-65.742358
 7224954,El Combate comunidad,El Combate,"El Combate, PR",PR,17.983103,-67.208935
-7225556,El MangÃ³ comunidad,El MangÃ³,"El MangÃ³, PR",PR,18.23446,-65.875112
+7225556,El Mangó comunidad,El Mangó,"El Mangó, PR",PR,18.23446,-65.875112
 7225685,El Negro comunidad,El Negro,"El Negro, PR",PR,18.036932,-65.849446
 7225771,El Ojo comunidad,El Ojo,"El Ojo, PR",PR,18.003807,-66.391842
 7225835,El Paraiso comunidad,El Paraiso,"El Paraiso, PR",PR,18.064841,-66.602092
 7226287,El Tumbao comunidad,El Tumbao,"El Tumbao, PR",PR,18.000925,-66.902147
-7226362,El VeintisÃ©is comunidad,El VeintisÃ©is,"El VeintisÃ©is, PR",PR,18.439347,-66.203439
+7226362,El Veintiséis comunidad,El Veintiséis,"El Veintiséis, PR",PR,18.439347,-66.203439
 7226502,Emajagua comunidad,Emajagua,"Emajagua, PR",PR,18.001517,-65.882959
 7227190,Esperanza comunidad,Esperanza,"Esperanza, PR",PR,18.102317,-65.479735
 7227263,Espino comunidad,Espino,"Espino, PR",PR,18.279328,-67.119838
 7227964,Fajardo zona urbana,Fajardo,"Fajardo, PR",PR,18.333339,-65.657626
 7228367,Ferrer comunidad,Ferrer,"Ferrer, PR",PR,18.405378,-67.067185
 7228824,Florida zona urbana,Florida,"Florida, PR",PR,18.364524,-66.561275
-7229555,FrÃ¡nquez comunidad,FrÃ¡nquez,"FrÃ¡nquez, PR",PR,18.340069,-66.42764
-7229682,FrontÃ³n comunidad,FrontÃ³n,"FrontÃ³n, PR",PR,18.309652,-66.560254
+7229555,Fránquez comunidad,Fránquez,"Fránquez, PR",PR,18.340069,-66.42764
+7229682,Frontón comunidad,Frontón,"Frontón, PR",PR,18.309652,-66.560254
 7229727,Fuig comunidad,Fuig,"Fuig, PR",PR,17.986287,-66.91711
 7229813,Galateo comunidad,Galateo,"Galateo, PR",PR,18.364048,-66.261809
 7230372,Garrochales comunidad,Garrochales,"Garrochales, PR",PR,18.457199,-66.567551
-7230544,G. L. GarcÃ­a comunidad,G. L. GarcÃ­a,"G. L. GarcÃ­a, PR",PR,18.125902,-66.102608
-7231189,GuÃ¡nica zona urbana,GuÃ¡nica,"GuÃ¡nica, PR",PR,17.968376,-66.929187
+7230544,G. L. García comunidad,G. L. García,"G. L. García, PR",PR,18.125902,-66.102608
+7231189,Guánica zona urbana,Guánica,"Guánica, PR",PR,17.968376,-66.929187
 7231877,Guayabal comunidad,Guayabal,"Guayabal, PR",PR,18.076049,-66.501674
 7232221,Guayama zona urbana,Guayama,"Guayama, PR",PR,17.973819,-66.111498
 7232307,Guayanilla zona urbana,Guayanilla,"Guayanilla, PR",PR,18.022118,-66.789772
 7232522,Guaynabo zona urbana,Guaynabo,"Guaynabo, PR",PR,18.38399,-66.114942
 7232823,Gurabo zona urbana,Gurabo,"Gurabo, PR",PR,18.252607,-65.978641
-7233184,Hacienda San JosÃ© comunidad,Hacienda San JosÃ©,"Hacienda San JosÃ©, PR",PR,18.239749,-66.0737
+7233184,Hacienda San José comunidad,Hacienda San José,"Hacienda San José, PR",PR,18.239749,-66.0737
 7233296,Hatillo zona urbana,Hatillo,"Hatillo, PR",PR,18.483817,-66.822157
 7233597,Hato Arriba comunidad,Hato Arriba,"Hato Arriba, PR",PR,18.351982,-67.033598
 7233683,Hato Candal comunidad,Hato Candal,"Hato Candal, PR",PR,18.37318,-65.790598
 7234242,Hato Viejo comunidad,Hato Viejo,"Hato Viejo, PR",PR,18.35978,-66.481138
 7234914,Honduras comunidad,Honduras,"Honduras, PR",PR,18.141188,-66.200504
 7235059,Hormigueros zona urbana,Hormigueros,"Hormigueros, PR",PR,18.143559,-67.120577
-7235403,H. Rivera ColÃ³n comunidad,H. Rivera ColÃ³n,"H. Rivera ColÃ³n, PR",PR,18.34925,-66.276327
+7235403,H. Rivera Colón comunidad,H. Rivera Colón,"H. Rivera Colón, PR",PR,18.34925,-66.276327
 7235532,Humacao zona urbana,Humacao,"Humacao, PR",PR,18.151768,-65.820599
-7235962,ImbÃ©ry comunidad,ImbÃ©ry,"ImbÃ©ry, PR",PR,18.437106,-66.556498
+7235962,Imbéry comunidad,Imbéry,"Imbéry, PR",PR,18.437106,-66.556498
 7236177,Indios comunidad,Indios,"Indios, PR",PR,17.997254,-66.81937
 7236263,Ingenio comunidad,Ingenio,"Ingenio, PR",PR,18.445238,-66.22389
 7236478,Isabela zona urbana,Isabela,"Isabela, PR",PR,18.501749,-67.023722
@@ -32162,7 +32162,7 @@ place_id,name,name_display,name_state,state,lat,lon
 7238241,Jauca comunidad,Jauca,"Jauca, PR",PR,17.96257,-66.366984
 7238370,Jayuya zona urbana,Jayuya,"Jayuya, PR",PR,18.219801,-66.598311
 7238671,Jobos comunidad,Jobos,"Jobos, PR",PR,17.960716,-66.165519
-7238972,Juana DÃ­az zona urbana,Juana DÃ­az,"Juana DÃ­az, PR",PR,18.053345,-66.504734
+7238972,Juana Díaz zona urbana,Juana Díaz,"Juana Díaz, PR",PR,18.053345,-66.504734
 7239470,Juncal comunidad,Juncal,"Juncal, PR",PR,18.312385,-66.921834
 7239574,Juncos zona urbana,Juncos,"Juncos, PR",PR,18.225798,-65.915876
 7239875,La Alianza comunidad,La Alianza,"La Alianza, PR",PR,18.395072,-66.597472
@@ -32180,38 +32180,38 @@ place_id,name,name_display,name_state,state,lat,lon
 7242842,Las Carolinas comunidad,Las Carolinas,"Las Carolinas, PR",PR,18.253768,-66.064316
 7243057,Las Croabas comunidad,Las Croabas,"Las Croabas, PR",PR,18.367729,-65.630588
 7243294,Las Gaviotas comunidad,Las Gaviotas,"Las Gaviotas, PR",PR,18.436804,-66.190702
-7243702,Las MarÃ­as comunidad,Las MarÃ­as,"Las MarÃ­as, PR",PR,18.292696,-67.144542
-7243788,Las MarÃ­as zona urbana,Las MarÃ­as,"Las MarÃ­as, PR",PR,18.254593,-66.986945
+7243702,Las Marías comunidad,Las Marías,"Las Marías, PR",PR,18.292696,-67.144542
+7243788,Las Marías zona urbana,Las Marías,"Las Marías, PR",PR,18.254593,-66.986945
 7244003,Las Ochenta comunidad,Las Ochenta,"Las Ochenta, PR",PR,17.983895,-66.317691
 7244089,Las Ollas comunidad,Las Ollas,"Las Ollas, PR",PR,18.014654,-66.42116
 7244390,Las Piedras zona urbana,Las Piedras,"Las Piedras, PR",PR,18.17867,-65.871079
 7244507,Lassalle comunidad,Lassalle,"Lassalle, PR",PR,18.385599,-67.061621
 7245170,La Yuca comunidad,La Yuca,"La Yuca, PR",PR,18.072734,-66.607733
-7245379,Liborio NegrÃ³n Torres comunidad,Liborio NegrÃ³n Torres,"Liborio NegrÃ³n Torres, PR",PR,18.043095,-66.942801
+7245379,Liborio Negrón Torres comunidad,Liborio Negrón Torres,"Liborio Negrón Torres, PR",PR,18.043095,-66.942801
 7246282,Lluveras comunidad,Lluveras,"Lluveras, PR",PR,18.038008,-66.90376
-7246368,LoÃ­za zona urbana,LoÃ­za,"LoÃ­za, PR",PR,18.433056,-65.878011
+7246368,Loíza zona urbana,Loíza,"Loíza, PR",PR,18.433056,-65.878011
 7246626,Lomas comunidad,Lomas,"Lomas, PR",PR,18.268759,-65.909583
 7246800,Lomas Verdes comunidad,Lomas Verdes,"Lomas Verdes, PR",PR,18.38226,-67.120054
-7246960,Los HÃ©roes comunidad,Los HÃ©roes,"Los HÃ©roes, PR",PR,18.391074,-67.118732
+7246960,Los Héroes comunidad,Los Héroes,"Los Héroes, PR",PR,18.391074,-67.118732
 7247013,Los Llanos comunidad,Los Llanos,"Los Llanos, PR",PR,18.057963,-66.409135
 7247336,Los Panes comunidad,Los Panes,"Los Panes, PR",PR,18.184869,-66.076127
 7247422,Los Prados comunidad,Los Prados,"Los Prados, PR",PR,18.23301,-66.062138
-7247615,Luis LlorÃ©ns Torres comunidad,Luis LlorÃ©ns Torres,"Luis LlorÃ©ns Torres, PR",PR,18.056544,-66.526722
-7247701,Luis M. CintrÃ³n comunidad,Luis M. CintrÃ³n,"Luis M. CintrÃ³n, PR",PR,18.301384,-65.637833
+7247615,Luis Lloréns Torres comunidad,Luis Lloréns Torres,"Luis Lloréns Torres, PR",PR,18.056544,-66.526722
+7247701,Luis M. Cintrón comunidad,Luis M. Cintrón,"Luis M. Cintrón, PR",PR,18.301384,-65.637833
 7247787,Luquillo zona urbana,Luquillo,"Luquillo, PR",PR,18.375668,-65.72092
 7247873,Luyando comunidad,Luyando,"Luyando, PR",PR,18.357471,-67.155343
 7248604,Magas Arriba comunidad,Magas Arriba,"Magas Arriba, PR",PR,18.023426,-66.766443
 7248862,Maguayo comunidad,Maguayo,"Maguayo, PR",PR,18.009988,-67.085439
-7250152,ManatÃ­ zona urbana,ManatÃ­,"ManatÃ­, PR",PR,18.431295,-66.477145
-7250260,MansiÃ³n del Mar comunidad,MansiÃ³n del Mar,"MansiÃ³n del Mar, PR",PR,18.446857,-66.178596
-7250270,MansiÃ³n del Sol comunidad,MansiÃ³n del Sol,"MansiÃ³n del Sol, PR",PR,18.437018,-66.193697
-7250754,MarÃ­a Antonia comunidad,MarÃ­a Antonia,"MarÃ­a Antonia, PR",PR,17.978262,-66.889853
-7251055,Mariano ColÃ³n comunidad,Mariano ColÃ³n,"Mariano ColÃ³n, PR",PR,18.028675,-66.33563
+7250152,Manatí zona urbana,Manatí,"Manatí, PR",PR,18.431295,-66.477145
+7250260,Mansión del Mar comunidad,Mansión del Mar,"Mansión del Mar, PR",PR,18.446857,-66.178596
+7250270,Mansión del Sol comunidad,Mansión del Sol,"Mansión del Sol, PR",PR,18.437018,-66.193697
+7250754,María Antonia comunidad,María Antonia,"María Antonia, PR",PR,17.978262,-66.889853
+7251055,Mariano Colón comunidad,Mariano Colón,"Mariano Colón, PR",PR,18.028675,-66.33563
 7251270,Maricao zona urbana,Maricao,"Maricao, PR",PR,18.181836,-66.977403
 7251657,Martorell comunidad,Martorell,"Martorell, PR",PR,18.07304,-65.897671
-7251700,MarueÃ±o comunidad,MarueÃ±o,"MarueÃ±o, PR",PR,18.05842,-66.656864
+7251700,Marueño comunidad,Marueño,"Marueño, PR",PR,18.05842,-66.656864
 7252345,Maunabo zona urbana,Maunabo,"Maunabo, PR",PR,18.006268,-65.90122
-7252431,MayagÃ¼ez zona urbana,MayagÃ¼ez,"MayagÃ¼ez, PR",PR,18.201221,-67.14178
+7252431,Mayagüez zona urbana,Mayagüez,"Mayagüez, PR",PR,18.201221,-67.14178
 7253678,Miranda comunidad,Miranda,"Miranda, PR",PR,18.387052,-66.372629
 7253807,Moca zona urbana,Moca,"Moca, PR",PR,18.394248,-67.113821
 7253979,Monserrate comunidad,Monserrate,"Monserrate, PR",PR,18.43711,-66.356638
@@ -32225,7 +32225,7 @@ place_id,name,name_display,name_state,state,lat,lon
 7257075,Olimpo comunidad,Olimpo,"Olimpo, PR",PR,18.003243,-66.110063
 7257290,Orocovis zona urbana,Orocovis,"Orocovis, PR",PR,18.225851,-66.390193
 7257612,Pabellones comunidad,Pabellones,"Pabellones, PR",PR,18.441212,-66.215608
-7257806,PÃ¡jaros comunidad,PÃ¡jaros,"PÃ¡jaros, PR",PR,18.36093,-66.218404
+7257806,Pájaros comunidad,Pájaros,"Pájaros, PR",PR,18.36093,-66.218404
 7257862,Pajonal comunidad,Pajonal,"Pajonal, PR",PR,18.384657,-66.555982
 7257978,Palmarejo comunidad,Palmarejo,"Palmarejo, PR",PR,18.068197,-66.326629
 7258064,Palmarejo comunidad,Palmarejo,"Palmarejo, PR",PR,18.31481,-66.292326
@@ -32241,15 +32241,15 @@ place_id,name,name_display,name_state,state,lat,lon
 7259420,Parcelas La Milagrosa comunidad,Parcelas La Milagrosa,"Parcelas La Milagrosa, PR",PR,18.171508,-66.186848
 7259422,Parcelas Mandry comunidad,Parcelas Mandry,"Parcelas Mandry, PR",PR,18.081023,-66.562711
 7259425,Parcelas Nuevas comunidad,Parcelas Nuevas,"Parcelas Nuevas, PR",PR,18.139985,-66.170236
-7259440,Parcelas PeÃ±uelas comunidad,Parcelas PeÃ±uelas,"Parcelas PeÃ±uelas, PR",PR,18.009007,-66.353437
+7259440,Parcelas Peñuelas comunidad,Parcelas Peñuelas,"Parcelas Peñuelas, PR",PR,18.009007,-66.353437
 7259450,Parcelas Viejas Borinquen comunidad,Parcelas Viejas Borinquen,"Parcelas Viejas Borinquen, PR",PR,18.173854,-66.04062
 7260257,Pastos comunidad,Pastos,"Pastos, PR",PR,18.119292,-66.26009
 7260472,Patillas zona urbana,Patillas,"Patillas, PR",PR,18.006914,-66.013453
-7260945,PeÃ±a Pobre comunidad,PeÃ±a Pobre,"PeÃ±a Pobre, PR",PR,18.217437,-65.822196
-7261074,PeÃ±uelas zona urbana,PeÃ±uelas,"PeÃ±uelas, PR",PR,18.059634,-66.72114
+7260945,Peña Pobre comunidad,Peña Pobre,"Peña Pobre, PR",PR,18.217437,-65.822196
+7261074,Peñuelas zona urbana,Peñuelas,"Peñuelas, PR",PR,18.059634,-66.72114
 7261545,Piedra Aguza comunidad,Piedra Aguza,"Piedra Aguza, PR",PR,18.035065,-66.494593
 7261590,Piedra Gorda comunidad,Piedra Gorda,"Piedra Gorda, PR",PR,18.434194,-66.886085
-7261977,PiÃ±as comunidad,PiÃ±as,"PiÃ±as, PR",PR,18.190153,-66.233168
+7261977,Piñas comunidad,Piñas,"Piñas, PR",PR,18.190153,-66.233168
 7263310,Playa Fortuna comunidad,Playa Fortuna,"Playa Fortuna, PR",PR,18.378224,-65.743837
 7263503,Playita comunidad,Playita,"Playita, PR",PR,17.961086,-66.288982
 7263525,Playita comunidad,Playita,"Playita, PR",PR,18.040482,-65.907109
@@ -32258,25 +32258,25 @@ place_id,name,name_display,name_state,state,lat,lon
 7263820,Ponce zona urbana,Ponce,"Ponce, PR",PR,17.999711,-66.62368
 7264127,Potala Pastillo comunidad,Potala Pastillo,"Potala Pastillo, PR",PR,17.992035,-66.496718
 7264400,Pueblito del Carmen comunidad,Pueblito del Carmen,"Pueblito del Carmen, PR",PR,18.031545,-66.165577
-7264500,Pueblito del RÃ­o comunidad,Pueblito del RÃ­o,"Pueblito del RÃ­o, PR",PR,18.227979,-65.861538
+7264500,Pueblito del Río comunidad,Pueblito del Río,"Pueblito del Río, PR",PR,18.227979,-65.861538
 7265589,Puerto Real comunidad,Puerto Real,"Puerto Real, PR",PR,18.076433,-67.18733
 7266492,Punta Santiago comunidad,Punta Santiago,"Punta Santiago, PR",PR,18.16093,-65.758798
 7266660,Quebrada comunidad,Quebrada,"Quebrada, PR",PR,18.360396,-66.835453
 7267200,Quebrada del Agua comunidad,Quebrada del Agua,"Quebrada del Agua, PR",PR,18.038629,-66.683928
 7267675,Quebrada Prieta comunidad,Quebrada Prieta,"Quebrada Prieta, PR",PR,18.294274,-65.903756
 7268040,Quebradillas zona urbana,Quebradillas,"Quebradillas, PR",PR,18.471343,-66.934902
-7268513,Rafael CapÃ³ comunidad,Rafael CapÃ³,"Rafael CapÃ³, PR",PR,18.398961,-66.792007
-7268556,Rafael GonzÃ¡lez comunidad,Rafael GonzÃ¡lez,"Rafael GonzÃ¡lez, PR",PR,18.425379,-66.78436
-7268599,Rafael HernÃ¡ndez comunidad,Rafael HernÃ¡ndez,"Rafael HernÃ¡ndez, PR",PR,18.471859,-67.078583
+7268513,Rafael Capó comunidad,Rafael Capó,"Rafael Capó, PR",PR,18.398961,-66.792007
+7268556,Rafael González comunidad,Rafael González,"Rafael González, PR",PR,18.425379,-66.78436
+7268599,Rafael Hernández comunidad,Rafael Hernández,"Rafael Hernández, PR",PR,18.471859,-67.078583
 7268771,Ramos comunidad,Ramos,"Ramos, PR",PR,18.33891,-65.711101
-7269488,RincÃ³n comunidad,RincÃ³n,"RincÃ³n, PR",PR,18.14991,-66.156897
-7269588,RincÃ³n zona urbana,RincÃ³n,"RincÃ³n, PR",PR,18.338814,-67.251634
-7270448,RÃ­o Blanco comunidad,RÃ­o Blanco,"RÃ­o Blanco, PR",PR,18.212326,-65.792979
-7270706,RÃ­o CaÃ±as Abajo comunidad,RÃ­o CaÃ±as Abajo,"RÃ­o CaÃ±as Abajo, PR",PR,18.039826,-66.468157
-7271136,RÃ­o Grande zona urbana,RÃ­o Grande,"RÃ­o Grande, PR",PR,18.378897,-65.838892
-7271437,RÃ­o Lajas comunidad,RÃ­o Lajas,"RÃ­o Lajas, PR",PR,18.396452,-66.263465
-7271996,RodrÃ­guez Hevia comunidad,RodrÃ­guez Hevia,"RodrÃ­guez Hevia, PR",PR,18.202034,-66.182221
-7272555,Rosa SÃ¡nchez comunidad,Rosa SÃ¡nchez,"Rosa SÃ¡nchez, PR",PR,18.061788,-65.913635
+7269488,Rincón comunidad,Rincón,"Rincón, PR",PR,18.14991,-66.156897
+7269588,Rincón zona urbana,Rincón,"Rincón, PR",PR,18.338814,-67.251634
+7270448,Río Blanco comunidad,Río Blanco,"Río Blanco, PR",PR,18.212326,-65.792979
+7270706,Río Cañas Abajo comunidad,Río Cañas Abajo,"Río Cañas Abajo, PR",PR,18.039826,-66.468157
+7271136,Río Grande zona urbana,Río Grande,"Río Grande, PR",PR,18.378897,-65.838892
+7271437,Río Lajas comunidad,Río Lajas,"Río Lajas, PR",PR,18.396452,-66.263465
+7271996,Rodríguez Hevia comunidad,Rodríguez Hevia,"Rodríguez Hevia, PR",PR,18.202034,-66.182221
+7272555,Rosa Sánchez comunidad,Rosa Sánchez,"Rosa Sánchez, PR",PR,18.061788,-65.913635
 7273200,Sabana comunidad,Sabana,"Sabana, PR",PR,18.464311,-66.351671
 7273372,Sabana Eneas comunidad,Sabana Eneas,"Sabana Eneas, PR",PR,18.080974,-67.085196
 7273544,Sabana Grande zona urbana,Sabana Grande,"Sabana Grande, PR",PR,18.082648,-66.964025
@@ -32286,19 +32286,19 @@ place_id,name,name_display,name_state,state,lat,lon
 7275608,San Antonio comunidad,San Antonio,"San Antonio, PR",PR,18.492693,-67.100851
 7275694,San Antonio comunidad,San Antonio,"San Antonio, PR",PR,18.447078,-66.299399
 7275780,San Antonio comunidad,San Antonio,"San Antonio, PR",PR,18.437042,-66.934719
-7276167,San GermÃ¡n zona urbana,San GermÃ¡n,"San GermÃ¡n, PR",PR,18.082963,-67.045999
+7276167,San Germán zona urbana,San Germán,"San Germán, PR",PR,18.082963,-67.045999
 7276339,San Isidro comunidad,San Isidro,"San Isidro, PR",PR,18.392138,-65.884329
-7276683,San JosÃ© comunidad,San JosÃ©,"San JosÃ©, PR",PR,18.403919,-66.249038
+7276683,San José comunidad,San José,"San José, PR",PR,18.403919,-66.249038
 7276770,San Juan zona urbana,San Juan,"San Juan, PR",PR,18.404559,-66.063746
 7277027,San Lorenzo zona urbana,San Lorenzo,"San Lorenzo, PR",PR,18.187061,-65.967354
-7277500,San SebastiÃ¡n zona urbana,San SebastiÃ¡n,"San SebastiÃ¡n, PR",PR,18.335498,-66.994756
-7277672,Santa BÃ¡rbara comunidad,Santa BÃ¡rbara,"Santa BÃ¡rbara, PR",PR,18.395494,-65.917584
+7277500,San Sebastián zona urbana,San Sebastián,"San Sebastián, PR",PR,18.335498,-66.994756
+7277672,Santa Bárbara comunidad,Santa Bárbara,"Santa Bárbara, PR",PR,18.395494,-65.917584
 7277826,Santa Clara comunidad,Santa Clara,"Santa Clara, PR",PR,18.209339,-66.133428
 7278145,Santa Isabel zona urbana,Santa Isabel,"Santa Isabel, PR",PR,17.969149,-66.405052
-7278317,Santa MarÃ­a comunidad,Santa MarÃ­a,"Santa MarÃ­a, PR",PR,18.270899,-65.66168
+7278317,Santa María comunidad,Santa María,"Santa María, PR",PR,18.270899,-65.66168
 7279564,Santo Domingo comunidad,Santo Domingo,"Santo Domingo, PR",PR,18.074159,-66.744901
 7280596,Stella comunidad,Stella,"Stella, PR",PR,18.323631,-67.246448
-7280639,SuÃ¡rez comunidad,SuÃ¡rez,"SuÃ¡rez, PR",PR,18.431752,-65.852355
+7280639,Suárez comunidad,Suárez,"Suárez, PR",PR,18.431752,-65.852355
 7281413,Tallaboa comunidad,Tallaboa,"Tallaboa, PR",PR,17.993515,-66.706733
 7281456,Tallaboa Alta comunidad,Tallaboa Alta,"Tallaboa Alta, PR",PR,18.050106,-66.702397
 7282055,Tibes comunidad,Tibes,"Tibes, PR",PR,18.088649,-66.63327
@@ -32307,12 +32307,12 @@ place_id,name,name_display,name_state,state,lat,lon
 7282488,Toa Alta zona urbana,Toa Alta,"Toa Alta, PR",PR,18.38812,-66.25125
 7282617,Toa Baja zona urbana,Toa Baja,"Toa Baja, PR",PR,18.443934,-66.254854
 7282692,Toaville comunidad,Toaville,"Toaville, PR",PR,18.44373,-66.243083
-7282875,TomÃ¡s de Castro comunidad,TomÃ¡s de Castro,"TomÃ¡s de Castro, PR",PR,18.184066,-66.018585
+7282875,Tomás de Castro comunidad,Tomás de Castro,"Tomás de Castro, PR",PR,18.184066,-66.018585
 7283606,Trujillo Alto zona urbana,Trujillo Alto,"Trujillo Alto, PR",PR,18.35961,-66.012658
 7284509,Utuado zona urbana,Utuado,"Utuado, PR",PR,18.26913,-66.706317
 7284917,Valle Hill comunidad,Valle Hill,"Valle Hill, PR",PR,18.395265,-65.894001
 7285025,Vayas comunidad,Vayas,"Vayas, PR",PR,18.054008,-66.585737
-7285111,VÃ¡zquez comunidad,VÃ¡zquez,"VÃ¡zquez, PR",PR,18.068363,-66.233161
+7285111,Vázquez comunidad,Vázquez,"Vázquez, PR",PR,18.068363,-66.233161
 7285197,Vega Alta zona urbana,Vega Alta,"Vega Alta, PR",PR,18.415176,-66.321158
 7285326,Vega Baja zona urbana,Vega Baja,"Vega Baja, PR",PR,18.44105,-66.399017
 7285971,Vieques comunidad,Vieques,"Vieques, PR",PR,18.426149,-65.832287
