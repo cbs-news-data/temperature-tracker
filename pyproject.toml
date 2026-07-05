@@ -1,34 +1,18 @@
 [project]
 name = "temperature-tracker"
-version = "0.1.0"
-description = "Data journalism project: temperature-tracker"
+version = "1.0.0"
+description = "NDFD heat-forecast data pipeline: fetch, reformat, publish map-ready GeoJSON 3x daily"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "jupyterlab>=4.4.5",
-    "nbconvert>=7.16.4",
     "numpy>=2.3.2",
     "pandas>=2.3.1",
-    "pyarrow>=18.0.0",
     "python-dotenv>=1.0.0",
     "requests>=2.32.4",
-    "ipykernel>=6.29.0",
 ]
 
 [project.optional-dependencies]
-viz = [
-    "ipywidgets>=8.1.7",
-    "matplotlib>=3.10.5",
-    "plotly>=6.2.0",
-    "seaborn>=0.13.2",
-    "altair>=5.2.0",
-]
-geo = [
-    "censusdis>=1.4.0",
-    "folium>=0.15.0",
-    "geopandas>=1.0.0",
-]
-# Everything the NDFD heat pipeline needs in one shot: `uv sync --extra heat`.
+# Everything the pipeline needs in one shot: `uv sync --extra heat`.
 # pygrib also needs the system eccodes C library (macOS: `brew install eccodes`;
 # Debian/Ubuntu: `apt-get install libeccodes-dev`).
 heat = [
@@ -41,23 +25,6 @@ heat = [
 ]
 dev = [
     "pytest>=8.0",
-]
-data = [
-    "polars>=1.0.0",
-    "duckdb>=1.0.0",
-]
-scraping = [
-    "beautifulsoup4>=4.12.0",
-    "httpx>=0.27.0",
-    "lxml>=5.3.0",
-    "playwright>=1.49.0",
-]
-io = [
-    "openpyxl>=3.1.0",
-    "pyyaml>=6.0.0",
-]
-datawrapper = [
-    "datawrapper>=0.9.0",
 ]
 
 [build-system]
