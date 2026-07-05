@@ -60,7 +60,7 @@ uv run python -m http.server 8000
 | file | shape | use |
 |---|---|---|
 | `<p>_points.geojson` | one feature per community: `name_state` + `day1…dayN`, 4-dec coords | **dots** layer (committed, published) |
-| `<p>_counties.geojson` | one polygon per county: `GEOID`, `NAME`, `day1…dayN` | **geometry** layer (committed, published) |
+| `<p>_counties.geojson` | one polygon per county: `GEOID`, `NAMELSAD` (full name, e.g. "Cook County", "Orleans Parish"), `day1…dayN` | **geometry** layer (committed, published) |
 | `<p>_long.csv` · `<p>_points.csv` · `<p>_counties.csv` | tidy / wide analyst tables with full identifiers (`place_id` etc.) | **on demand only** — `build_heat.py --csv`; not committed (pure reformats of the GeoJSON values) |
 
 The GeoJSONs are deliberately minimal — only what the map displays. GeoJSON
@@ -77,7 +77,7 @@ interface; breaking changes require coordinating with every consumer:
   consumers should fetch with `cache: "no-cache"`.
 - **Points features:** `properties = { name_state, day1..dayN }` — values are whole
   °F ints or `null` (no data); N varies (typically 6–7). Point coords, 4 decimals.
-- **Counties features:** `properties = { GEOID, NAME, day1..dayN }` — same value rules.
+- **Counties features:** `properties = { GEOID, NAMELSAD, day1..dayN }` — `NAMELSAD` is the full legal name ("Cook County", "Orleans Parish", "Anchorage Municipality"); same value rules.
 - **Metadata (BOTH points and counties files):** `metadata.days[]` maps `dayN`
   keys to `seq`, `fcst_date` (the date the value describes), `valid_utc`; apt
   products add `n_hours` + `valid_start_utc` (thin-bucket flagging).

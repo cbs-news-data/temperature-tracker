@@ -281,7 +281,10 @@ def main() -> int:
         import geopandas as gpd
         counties = gpd.read_file(args.counties).to_crs(4326)
         geoid_col = next((c for c in ("GEOID", "GEOID20", "geoid") if c in counties.columns), None)
-        name_col = next((c for c in ("NAME", "NAMELSAD", "name") if c in counties.columns), None)
+        # Prefer NAMELSAD: the full legal name ("Cook County", "Orleans Parish",
+        # "Anchorage Municipality") — a blanket " County" suffix would be wrong
+        # for parishes, boroughs and independent cities.
+        name_col = next((c for c in ("NAMELSAD", "NAME", "name") if c in counties.columns), None)
         if geoid_col is None:
             raise SystemExit(f"no GEOID column in {args.counties} (have {list(counties.columns)})")
         csec = counties[geoid_col].astype(str).map(county_sector).to_numpy()
