@@ -74,8 +74,10 @@ def county_sector(geoid) -> str:
 
 # ---------------------------------------------------------------- decode (pygrib)
 def decode_raw(grib_paths: list[Path]):
-    """Decode every GRIB message -> (lats1d, lons1d, [(valid_utc, vals_f_guarded)]).
+    """Decode every GRIB message -> (lats1d, lons1d, [(valid_utc, vals_f)], issued_utc).
 
+    ``issued_utc`` is the newest GRIB reference time (``analDate``) — when NWS
+    generated the forecast, as opposed to ``validDate`` (what time it is FOR).
     This is the one function that touches pygrib. Everything downstream operates
     on the plain arrays it returns, which is what makes the transform core in
     utils/heat.py testable without a live GRIB file.
@@ -83,6 +85,7 @@ def decode_raw(grib_paths: list[Path]):
     import pygrib
     lats1d = lons1d = None
     records = []
+    issued = None
     for p in grib_paths:
         with pygrib.open(str(p)) as grbs:
             for g in grbs:
@@ -94,11 +97,13 @@ def decode_raw(grib_paths: list[Path]):
                 if n_bad:
                     print(f"  guard: {n_bad:,} out-of-range cell(s) -> NaN "
                           f"(valid {g.validDate:%Y-%m-%d %HZ}); check GRIB masking")
+                anal = g.analDate.replace(tzinfo=timezone.utc)
+                issued = anal if issued is None else max(issued, anal)
                 records.append((g.validDate.replace(tzinfo=timezone.utc), vals))
     if not records:
         raise SystemExit("no GRIB messages decoded — check the .bin files")
     records.sort(key=lambda r: r[0])
-    return lats1d, lons1d, records
+    return lats1d, lons1d, records, issued
 
 
 def days_for(product: str, records, tz: str) -> list[dict]:
@@ -128,7 +133,7 @@ def nearest_idx(lats1d, lons1d, lat, lon):
     return idx
 
 
-def write_points(out, days, outdir: Path, prefix, element_label) -> None:
+def write_points(out, days, outdir: Path, prefix, element_label, issued_utc=None) -> None:
     day_cols = [f"day{d['seq']}" for d in days]
     id_cols = [c for c in ("place_id", "name", "name_display", "name_state",
                            "state", "lat", "lon") if c in out.columns]
@@ -153,9 +158,10 @@ def write_points(out, days, outdir: Path, prefix, element_label) -> None:
                       "geometry": {"type": "Point", "coordinates":
                                    [round(float(r["lon"]), 5), round(float(r["lat"]), 5)]},
                       "properties": props})
-    gj = {"type": "FeatureCollection",
-          "metadata": {"element": element_label, "days": [day_meta(d) for d in days]},
-          "features": feats}
+    meta_block = {"element": element_label, "days": [day_meta(d) for d in days]}
+    if issued_utc is not None:
+        meta_block["issued_utc"] = issued_utc.isoformat()  # NWS forecast issuance time
+    gj = {"type": "FeatureCollection", "metadata": meta_block, "features": feats}
     (outdir / f"{prefix}_points.geojson").write_text(json.dumps(gj))
     print(f"points: {len(out):,} communities -> {prefix}_points.[csv|geojson], {prefix}_long.csv")
 
@@ -257,6 +263,7 @@ def main() -> int:
 
     day_meta_by_date: dict = {}  # fcst_date -> day dict (no vals), CONUS wins
     decoded = []
+    issued_utc = None            # newest NWS issuance time across all sectors
     for area in areas:   # CONUS first (as listed) so its day metadata wins
         paths = [config.RAW_DATA_DIR / f"{prod['element']}_{area}_{p}.bin"
                  for p in ("001-003", "004-007")]
@@ -264,7 +271,9 @@ def main() -> int:
         if not paths:
             print(f"  skip {area}: no GRIB in {config.RAW_DATA_DIR}")
             continue
-        lats1d, lons1d, records = decode_raw(paths)
+        lats1d, lons1d, records, issued = decode_raw(paths)
+        if issued is not None:
+            issued_utc = issued if issued_utc is None else max(issued_utc, issued)
         days = days_for(args.product, records, args.tz)
         del records
         print(f"{area}/{prod['element']}: {len(days)} day(s) "
@@ -297,7 +306,7 @@ def main() -> int:
         out = places.copy()
         for g in gdays:
             out[f"day{g['seq']}"] = to_int_f(place_vals.get(g["fcst_date"], np.full(len(places), np.nan)))
-        write_points(out, gdays, outdir, prefix, prod["label"])
+        write_points(out, gdays, outdir, prefix, prod["label"], issued_utc)
     if want_counties:
         write_counties(counties, geoid_col, name_col, county_vals, gdays, outdir, prefix, prod["county_agg"])
     return 0

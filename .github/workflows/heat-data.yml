@@ -1,26 +1,33 @@
 name: heat data pipeline
 
-# Jobs 1 + 2: fetch NDFD GRIB, reformat into map-ready data, commit the latest
-# data. This is the durable pipeline — it stands alone. The viewer/Pages deploy
-# lives in heat-publish.yml and can be removed without touching this.
+# The whole pipeline in one workflow: fetch NDFD GRIB -> reformat into map-ready
+# data -> commit -> deploy the viewer to Pages. The deploy is a separate JOB so
+# presentation stays detachable: delete the `deploy` job and the fetch/clean/
+# commit pipeline is untouched.
 #
-# NDFD refreshes through the day; run morning + afternoon (UTC) plus on demand.
+# (Previously the deploy lived in heat-publish.yml, chained via workflow_run.
+# GitHub's Pages backend intermittently rejects deployments with a transient
+# "Deployment failed, try again later" — so the deploy step here RETRIES.)
+#
+# Crons are UTC and shift an hour at DST. Odd :23 minutes dodge the top-of-hour
+# cron rush that delays runs.
 on:
   schedule:
-    - cron: "5 11 * * *"   # ~ early-morning ET update
-    - cron: "5 20 * * *"   # ~ afternoon ET update (captures the day's hottest guidance)
+    - cron: "23 9 * * *"    # 5:23a ET summer / 4:23a winter — fresh for morning shows
+    - cron: "23 15 * * *"   # 11:23a ET summer / 10:23a winter — midday refresh into peak heat
+    - cron: "23 0 * * *"    # 8:23p ET summer / 7:23p winter — past the peak; map pivots to tomorrow
   workflow_dispatch: {}
 
-permissions:
-  contents: write          # to commit the refreshed data
-
+# Serialize runs; never cancel one mid-commit/mid-deploy.
 concurrency:
   group: heat-data
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write          # to commit the refreshed data
     steps:
       - uses: actions/checkout@v4
 
@@ -44,10 +51,10 @@ jobs:
           test -f data/reference/places.csv     || uv run python scripts/make_reference.py --skip-counties
           test -f data/reference/counties.geojson || uv run python scripts/make_reference.py
 
-      - name: Fetch NDFD (maxt + apt, CONUS + AK + HI)   # Job 1
+      - name: Fetch NDFD (maxt + apt, CONUS + AK + HI)
         run: uv run python scripts/fetch_ndfd.py --area conus,alaska,hawaii --elements maxt,apt
 
-      - name: Reformat into map-ready data    # Job 2
+      - name: Reformat into map-ready data
         run: |
           uv run python scripts/build_heat.py --product temp      --mode both --decimate 2
           uv run python scripts/build_heat.py --product feelslike --mode both --decimate 2 --tz America/Chicago
@@ -62,3 +69,45 @@ jobs:
           git add data/reference data/processed
           git diff --cached --quiet || git commit -m "heat data $(date -u +%FT%TZ)"
           git push
+
+      # Assemble the site from THIS run's fresh outputs and stage it for deploy.
+      # DATA_BASE in index.html defaults to "data", so the layout is index.html + data/.
+      - name: Assemble site
+        run: |
+          mkdir -p _site/data
+          cp viewer/index.html _site/index.html
+          cp data/processed/*.geojson _site/data/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build-data
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy1.outputs.page_url }}
+    # Pages allows one live deployment at a time — serialize, never cancel.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy1
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      # The Pages backend intermittently answers "Deployment failed, try again
+      # later" (a ~6-second server-side rejection, worst at cron rush hours).
+      # Manual re-runs always succeed — so do the retry automatically.
+      - name: Wait before retry
+        if: steps.deploy1.outcome == 'failure'
+        run: sleep 180
+
+      - name: Deploy to GitHub Pages (retry)
+        if: steps.deploy1.outcome == 'failure'
+        uses: actions/deploy-pages@v4

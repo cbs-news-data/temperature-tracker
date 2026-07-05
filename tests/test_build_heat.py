@@ -4,6 +4,7 @@ GeoJSON outputs. This is pandas-only logic (no GRIB/geo deps), so it runs in CI.
 The GRIB decode and the scipy/geopandas paths are covered by validate_live.py.
 """
 import json
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -35,7 +36,8 @@ def test_write_points_outputs(tmp_path):
     out["day2"] = build_heat.to_int_f([108.4, 95.6])     # rounding to whole °F
     days = _days()
 
-    build_heat.write_points(out, days, tmp_path, "heat", "test label")
+    issued = datetime(2026, 7, 4, 13, 30, tzinfo=timezone.utc)
+    build_heat.write_points(out, days, tmp_path, "heat", "test label", issued)
 
     # long.csv: one tidy row per place × day, NaN written as empty value_f
     long = pd.read_csv(tmp_path / "heat_long.csv")
@@ -47,6 +49,7 @@ def test_write_points_outputs(tmp_path):
     # GeoJSON: NaN -> null, whole-degree rounding, metadata preserved
     gj = json.loads((tmp_path / "heat_points.geojson").read_text())
     assert [d["key"] for d in gj["metadata"]["days"]] == ["day1", "day2"]
+    assert gj["metadata"]["issued_utc"] == "2026-07-04T13:30:00+00:00"
     phx, nyc = gj["features"][0]["properties"], gj["features"][1]["properties"]
     assert phx["day1"] == 110 and phx["day2"] == 108   # 108.4 -> 108
     assert nyc["day1"] is None and nyc["day2"] == 96    # NaN -> null; 95.6 -> 96

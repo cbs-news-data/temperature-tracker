@@ -13,7 +13,7 @@ replaced without breaking the others.
 |---|---|---|---|
 | **1 — Fetch** | download NDFD GRIB on a schedule | `scripts/fetch_ndfd.py` | `data/raw/*.bin` |
 | **2 — Reformat** | decode GRIB → map/chart-ready tables | `scripts/build_heat.py` (+ `utils/heat.py`) | `data/processed/*.csv`, `*.geojson` |
-| **3 — Present** | render & deploy the interactive map | `viewer/index.html` + `heat-publish.yml` | a deployed site |
+| **3 — Present** | render & deploy the interactive map | `viewer/index.html` + the `deploy` job in `heat-data.yml` | a deployed site |
 
 Job 3 is the **only** consumer of Job 2's files. Move presentation elsewhere
 (Datawrapper, a CMS, a separate web repo) and Jobs 1–2 keep fetching, cleaning,
@@ -96,16 +96,20 @@ site out as `index.html` + `data/`, so the default works.
 
 ## Automation
 
-Two workflows keep the jobs separable:
+One workflow, `.github/workflows/heat-data.yml`, runs three times daily —
+9:23 / 15:23 / 0:23 UTC (5:23a / 11:23a / 8:23p ET in summer; an hour earlier in
+winter; odd minutes dodge GitHub's top-of-hour cron rush):
 
-- **`.github/workflows/heat-data.yml`** — runs twice daily (UTC): fetch `maxt,apt`,
-  build all three products, commit `data/processed` + `data/reference`. Raw GRIB
-  is not committed (binary, reproducible).
-- **`.github/workflows/heat-publish.yml`** — after the data pipeline succeeds (or
-  on demand), assembles `viewer/` + the committed GeoJSON and deploys to GitHub
-  Pages. *One-time repo setting:* Settings → Pages → Source = "GitHub Actions".
+- **`build-data` job** — fetch `maxt,apt` (CONUS + AK + HI), build all three
+  products, commit `data/processed` + `data/reference`, stage the site artifact.
+  Raw GRIB is not committed (binary, reproducible).
+- **`deploy` job** — deploys the staged site to GitHub Pages, with an automatic
+  retry: the Pages backend intermittently rejects deployments with a transient
+  "Deployment failed, try again later," so a failed attempt waits 3 minutes and
+  tries again. *One-time repo setting:* Settings → Pages → Source = "GitHub Actions".
 
-Delete `heat-publish.yml` and the data pipeline is unaffected.
+Presentation stays detachable: delete the `deploy` job and the fetch/clean/commit
+pipeline is untouched.
 
 ## Validation (do this before publishing)
 

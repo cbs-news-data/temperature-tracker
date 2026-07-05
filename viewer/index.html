@@ -90,7 +90,7 @@
     <label for="day">Day</label>
     <select id="day"></select>
     <div id="legend"></div>
-    <div id="meta">Source: NOAA/NWS NDFD. °F.<br>Map by John Kelly, CBS News</div>
+    <div id="meta">Source: NOAA/NWS NDFD<span id="issued"></span>. °F.<br>Map by John Kelly, CBS News</div>
   </div>
 </div>
 <div id="map"></div>
@@ -235,11 +235,19 @@ map.on('load', async ()=>{
   await setMeasure('temp');
 });
 
+// "issued Jul 5, 7:16 AM EDT" — when NWS generated the forecast (from GRIB metadata).
+function issuedLabel(iso){
+  if(!iso) return '';
+  return ', issued '+new Date(iso).toLocaleString('en-US',{timeZone:'America/New_York',
+    month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+}
+
 async function setMeasure(m){
   measure=m;
   document.querySelectorAll('#measure button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
   const ds=DATASETS[m];
   const {pts,cty}=await fetchDataset(ds.prefix);
+  document.getElementById('issued').textContent=issuedLabel(pts.metadata&&pts.metadata.issued_utc);
   map.getSource('pts').setData(pts);
   map.getSource('cty').setData(cty);
   buildIndex(pts);

@@ -42,13 +42,18 @@ data/raw/*.bin
 !data/processed/*.geojson
 
 # Editors / OS
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
+.vscode/
 .idea/
 *.swp
 *~
 .DS_Store
+
+# Internal notes/docs — only the README ships to the remote
+*.md
+!README.md
+
+# Pages site staging (assembled fresh by the workflow)
+_site/
 
 # Logs / temp
 *.log
