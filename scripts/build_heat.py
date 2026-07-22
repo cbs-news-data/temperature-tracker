@@ -2,9 +2,9 @@
 """
 build_heat.py — Job 2 (reformat): turn NDFD temperature GRIB2 into map-ready data.
 
-This is the only place GRIB is decoded and shaped. It writes nothing the viewer
+This is the only place GRIB is decoded and shaped. It writes nothing a consumer
 needs to know about beyond plain files in data/processed/, so the presentation
-layer (Job 3) can be swapped out without touching this step.
+layer (the graphics-rig map) can be swapped out without touching this step.
 
 Three products (pick with --product), each writing the same file family:
 

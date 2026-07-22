@@ -1,9 +1,9 @@
 name: heat data pipeline
 
 # The whole pipeline in one workflow: fetch NDFD GRIB -> reformat into map-ready
-# data -> commit -> deploy the viewer to Pages. The deploy is a separate JOB so
-# presentation stays detachable: delete the `deploy` job and the fetch/clean/
-# commit pipeline is untouched.
+# data -> commit -> deploy the DATA to Pages (the graphics-rig map consumes these
+# GeoJSON URLs at runtime). The deploy is a separate JOB so it stays detachable:
+# delete the `deploy` job and the fetch/clean/commit pipeline is untouched.
 #
 # (Previously the deploy lived in heat-publish.yml, chained via workflow_run.
 # GitHub's Pages backend intermittently rejects deployments with a transient
@@ -73,12 +73,11 @@ jobs:
           git pull --rebase origin main
           git push || (sleep 10 && git pull --rebase origin main && git push)
 
-      # Assemble the site from THIS run's fresh outputs and stage it for deploy.
-      # DATA_BASE in index.html defaults to "data", so the layout is index.html + data/.
-      - name: Assemble site
+      # Publish ONLY the data. This repo is a headless data engine — the map
+      # lives in the graphics-rig, which fetches these GeoJSON URLs at runtime.
+      - name: Assemble site (data only)
         run: |
           mkdir -p _site/data
-          cp viewer/index.html _site/index.html
           cp data/processed/*.geojson _site/data/
 
       - uses: actions/upload-pages-artifact@v3

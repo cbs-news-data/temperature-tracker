@@ -3,11 +3,11 @@
 Fetches NOAA/National Weather Service **NDFD** forecasts three times a day,
 reformats them into map-ready GeoJSON, and publishes them via GitHub Pages.
 
-**This repo is the data engine.** The public-facing map lives in the graphics-rig
-(`cbs-news-data-projects/graphics-rig` → `projects/2026/heat-tracker`, deployed at
-`projects.cbsnews.com/projects/2026/heat-tracker/`) and consumes this repo's
-published GeoJSON at runtime. A reference viewer is kept here (`viewer/`) as a
-development/rollback view.
+**This repo is the data engine — it produces data, not a map.** The public-facing
+map lives in the graphics-rig (`cbs-news-data-projects/graphics-rig` →
+`projects/2026/heat-tracker`, deployed at
+`projects.cbsnews.com/projects/2026/heat-tracker/`) and fetches this repo's
+published GeoJSON at runtime.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ Three decoupled stages that talk only through files:
 |---|---|---|---|
 | **Fetch** | download NDFD GRIB2 (CONUS + AK + HI) | `scripts/fetch_ndfd.py` | `data/raw/*.bin` (not committed) |
 | **Reformat** | decode → slim, map-ready GeoJSON | `scripts/build_heat.py` + `utils/heat.py` | `data/processed/*.geojson` (committed) |
-| **Publish** | deploy data (+ reference viewer) to Pages | `deploy` job in `heat-data.yml` | `cbs-news-data.github.io/temperature-tracker/data/…` |
+| **Publish** | deploy the GeoJSON to Pages | `deploy` job in `heat-data.yml` | `cbs-news-data.github.io/temperature-tracker/data/…` |
 
 Consumers only ever read the published URLs — presentation can change anywhere
 without touching this pipeline.
@@ -62,26 +62,22 @@ plain air temp in between.
 
 - **`build-data` job** — fetch, build all three products (each place/county routed
   to its own sector grid: AK→alaska, HI→hawaii, else CONUS), rebase-and-commit
-  `data/processed` + `data/reference`, stage the site artifact.
-- **`deploy` job** — publish to GitHub Pages with an automatic retry (the Pages
-  backend intermittently answers "Deployment failed, try again later"; a failed
-  attempt waits 3 minutes and retries). Delete this job and the fetch/commit
-  pipeline is untouched.
+  `data/processed` + `data/reference`, stage the GeoJSON for deploy.
+- **`deploy` job** — publish the GeoJSON to GitHub Pages with an automatic retry
+  (the Pages backend intermittently answers "Deployment failed, try again later";
+  a failed attempt waits 3 minutes and retries). Delete this job and the
+  fetch/commit pipeline is untouched.
 
 ## Local development
 
 ```bash
 uv sync --extra heat --extra dev   # pygrib needs system eccodes: brew install eccodes
-uv run pytest                      # 13 unit tests (transform core + shaping)
+uv run pytest                      # 17 unit tests (transform core + shaping)
 
 uv run python scripts/make_reference.py                 # once (~yearly): places + counties
 uv run python scripts/validate_live.py                  # live-GRIB smoke test (run before trusting changes)
 uv run python scripts/fetch_ndfd.py --elements maxt,apt # days 1–7, CONUS + AK + HI
 uv run python scripts/build_heat.py --product temp      # + feelslike, warmnight
-
-# reference viewer against local outputs:
-uv run python -m http.server 8000
-# open http://localhost:8000/viewer/index.html?data=../data/processed
 ```
 
 `validate_live.py` checks the three live-decode assumptions unit tests can't:
