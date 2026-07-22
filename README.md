@@ -60,39 +60,24 @@ without touching this pipeline.
 |---|---|---|---|
 | `temp` | `maxt` | daytime **maximum temperature** (one grid/day, as NWS ships it) | `heat_*` |
 | `feelslike` | `apt` | **daily-max apparent / "feels-like"** temp (hourly → per-cell daily max) | `feelslike_*` |
-| `warmnight` | `apt` | **overnight-min** apparent temp (local 8pm–8am; drives heat-wave mortality) | `warmnight_*` |
+| `warmnight` | `apt` | **overnight-min** apparent temp (local 8pm–8am; using because sources advise it drives heat-wave mortality) | `warmnight_*` |
 
 `apt` = NWS apparent temperature: heat index when hot, wind chill when cold,
 plain air temp in between.
 
-## Automation
+## Automation Summary
 
-`.github/workflows/heat-data.yml` — the whole pipeline, three times daily:
+`.github/workflows/heat-data.yml` — three times daily; could be one or two after another month of testing:
 
 - **`build-data` job** — fetch, build all three products (each place/county routed
-  to its own sector grid: AK→alaska, HI→hawaii, else CONUS), rebase-and-commit
-  `data/processed` + `data/reference`, stage the GeoJSON for deploy.
+  to its own sector grid: AK→alaska, HI→hawaii, else CONUS), rebase and commit
+  `data/processed` + `data/reference`, stage GeoJSON for deploy.
 - **`deploy` job** — publish the GeoJSON to GitHub Pages with an automatic retry
   (the Pages backend intermittently answers "Deployment failed, try again later";
   a failed attempt waits 3 minutes and retries). Delete this job and the
   fetch/commit pipeline is untouched.
 
-## Local development
-
-```bash
-uv sync --extra heat --extra dev   # pygrib needs system eccodes: brew install eccodes
-uv run pytest                      # 17 unit tests (transform core + shaping)
-
-uv run python scripts/make_reference.py                 # once (~yearly): places + counties
-uv run python scripts/validate_live.py                  # live-GRIB smoke test (run before trusting changes)
-uv run python scripts/fetch_ndfd.py --elements maxt,apt # days 1–7, CONUS + AK + HI
-uv run python scripts/build_heat.py --product temp      # + feelslike, warmnight
-```
-
-`validate_live.py` checks the three live-decode assumptions unit tests can't:
-fill-value masking, hourly `apt` message structure, and day/night date attribution.
-
-## Knobs
+## Command-line options
 
 - `build_heat.py --product temp|feelslike|warmnight` · `--mode points|counties|both`
 - `build_heat.py --csv` — also write analyst tables (tidy long + wide CSVs with
@@ -115,7 +100,7 @@ fill-value masking, hourly `apt` message structure, and day/night date attributi
   the 4th).
 - **County values are near-extremes, not averages** — the 95th-percentile cell for
   temp/feelslike, 5th for warm nights (`--county-pct`); a tail percentile, not the
-  single hottest/coolest cell, so one corrupt cell can't define a county. Not
+  single hottest/coolest cell, so one corrupt tiny-geography grid cell can't define a county. Not
   population-weighted. Feels-like cells are also dropped when they exceed the same
   day's air-temp max by more than 25°F (a corrupt-cell guard; see `cap_apt_to_airtemp`).
 - **Thin buckets** at the near/far ends rest on fewer hours (`n_hours` flags them).
@@ -123,11 +108,10 @@ fill-value masking, hourly `apt` message structure, and day/night date attributi
 - **Whole °F only**; guard band −80…145°F kills unmasked GRIB fills at decode.
 - **Nearest-cell sampling** for dots; coastal/mountain points can sit on a gradient.
 
-## Data sources
+## Original data sources
 
 - NDFD GRIB2: `https://tgftp.nws.noaa.gov/SL.us008001/ST.opnl/DF.gr2/DC.ndfd/AR.{conus,alaska,hawaii}/VP.{001-003,004-007}/ds.{maxt,apt}.bin`
-  (files are WMO-wrapped concatenated GRIB2 — they don't start with `GRIB`; pygrib
-  reads them as-is)
-- Reference geographies: Census 2024 Gazetteer places + 2023 cartographic-boundary
+  (files are WMO-wrapped concatenated GRIB2 — they don't start with `GRIB`; pygrib reads them as-is)
+- Reference geographies: Census 2024 Gazetteer places and 2023 cartographic-boundary
   counties (`make_reference.py`; NYC is split into its five boroughs, consolidated
-  city-county names cleaned, UTF-8 place names)
+  city-county names cleaned manually).
