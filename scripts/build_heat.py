@@ -50,9 +50,11 @@ import pandas as pd  # noqa: E402
 
 import config  # noqa: E402
 from utils.heat import (  # noqa: E402
+    APT_OVER_AIRTEMP_MARGIN_F,
     as_apt_daymax,
     as_apt_nightmin,
     as_daily_maxt,
+    cap_apt_to_airtemp,
     day_meta,
     guard_range,
     k_to_f,
@@ -174,19 +176,30 @@ def write_points(out, days, outdir: Path, prefix, element_label,
 
 
 # ---------------------------------------------------------------- counties (geometry)
-def accumulate_counties(county_vals, csub, geoid_col, lats1d, lons1d, days, decimate, county_agg):
-    """Add this sector's per-county values (keyed by fcst_date -> {geoid: value})."""
+def accumulate_counties(county_vals, csub, geoid_col, lats1d, lons1d, days,
+                        decimate, county_agg, county_pct):
+    """Add this sector's per-county values (keyed by fcst_date -> {geoid: value}).
+
+    The county value is a robust tail percentile of its grid cells, not a raw
+    min/max: ``county_pct`` (high tail) for "max" products, its mirror
+    ``1 - county_pct`` (low tail) for "min". A plain max let a single corrupt
+    cell define the whole county (Lemhi County, ID hit 139°F feels-like off one
+    bad cell); the 95th percentile ignores lone outliers while still capturing a
+    genuine hotspot. Small counties with few cells collapse toward the true
+    extreme (quantile of 1–2 cells ≈ that cell), so coverage isn't lost.
+    NaN cells are skipped by ``groupby.quantile``.
+    """
     import geopandas as gpd
     sl = slice(None, None, decimate)
     grid = gpd.GeoDataFrame(geometry=gpd.points_from_xy(lons1d[sl], lats1d[sl]), crs=4326)
     joined = gpd.sjoin(grid, csub[[geoid_col, "geometry"]], how="inner", predicate="within")
     if joined.empty:
         return
+    q = county_pct if county_agg == "max" else 1.0 - county_pct
     base = joined[[geoid_col]].copy()
     for d in days:
         base["v"] = d["vals_f"][sl][joined.index]
-        grp = base.groupby(geoid_col)["v"]
-        agg = grp.min() if county_agg == "min" else grp.max()
+        agg = base.groupby(geoid_col)["v"].quantile(q)
         county_vals.setdefault(d["fcst_date"], {}).update(agg.to_dict())
 
 
@@ -218,15 +231,36 @@ def write_counties(counties, geoid_col, name_col, county_vals, days, outdir: Pat
 
 
 # ---------------------------------------------------------------- main
+# cap_vs_maxt: sanity-cap each apt cell against the same day's air-temp max
+# (see cap_apt_to_airtemp). Only the DAYTIME feels-like needs it — warmnight
+# takes the per-cell MIN so a spuriously high cell can never win, and comparing
+# an overnight low against a daytime high would be meaningless anyway.
 PRODUCTS = {
     "temp":      {"element": "maxt", "prefix": "heat", "county_agg": "max",
                   "label": "NDFD maxt, daytime max (°F)"},
     "feelslike": {"element": "apt",  "prefix": "feelslike", "county_agg": "max",
+                  "cap_vs_maxt": True,
                   "label": "NDFD apt, daily-max apparent/feels-like (°F)"},
     "warmnight": {"element": "apt",  "prefix": "warmnight", "county_agg": "min",
                   "label": "NDFD apt, overnight-min apparent/feels-like (°F); "
                            "fcst_date = evening the night begins"},
 }
+
+
+def load_maxt_day_grids(area: str) -> dict:
+    """Decode the sector's maxt GRIB into ``{fcst_date: per-cell °F array}``.
+
+    Used only to sanity-cap the apt "feels-like" grid (see cap_apt_to_airtemp).
+    Returns ``{}`` (cap skipped, with a note) when the sector has no maxt file —
+    the apt run should still produce output, just without the air-temp cross-check.
+    """
+    paths = [config.RAW_DATA_DIR / f"maxt_{area}_{p}.bin" for p in ("001-003", "004-007")]
+    paths = [p for p in paths if p.exists()]
+    if not paths:
+        print(f"  cap: no maxt GRIB for {area} — skipping apt vs air-temp cap")
+        return {}
+    _, _, records, _ = decode_raw(paths)
+    return {d["fcst_date"]: d["vals_f"] for d in as_daily_maxt(records)}
 
 
 def global_days(day_meta_by_date: dict) -> list[dict]:
@@ -257,6 +291,10 @@ def main() -> int:
                     help="apt products: tz whose calendar day/night defines each bucket")
     ap.add_argument("--decimate", type=int, default=2,
                     help="county zonal value samples every Nth grid cell (2 ≈ 5km)")
+    ap.add_argument("--county-pct", type=float, default=0.95,
+                    help="county value = this tail percentile of its cells "
+                         "(0.95 = 95th for max products / 5th for min); robust to "
+                         "a lone corrupt cell. 1.0 restores the old raw min/max.")
     ap.add_argument("--outdir", default=str(config.PROCESSED_DATA_DIR))
     ap.add_argument("--outprefix", default=None)
     ap.add_argument("--csv", action="store_true",
@@ -307,6 +345,27 @@ def main() -> int:
         del records
         print(f"{area}/{prod['element']}: {len(days)} day(s) "
               f"{'hours: ' + str([d.get('n_hours') for d in days]) if 'n_hours' in days[0] else ''}")
+
+        # Sanity-cap feels-like against the same day's air-temp max BEFORE it
+        # feeds points or counties, so one corrupt apt cell can't poison either.
+        # Matched by fcst_date (apt and maxt land on identical fcst_dates); a day
+        # with no maxt match is left uncapped rather than dropped.
+        if prod.get("cap_vs_maxt"):
+            maxt_by_date = load_maxt_day_grids(area)
+            n_capped = 0
+            for d in days:
+                ref = maxt_by_date.get(d["fcst_date"])
+                if ref is None or len(ref) != len(d["vals_f"]):
+                    if ref is not None:
+                        print(f"  cap: {area} apt/maxt grid mismatch "
+                              f"({len(d['vals_f'])} vs {len(ref)}) — skipping {d['fcst_date']}")
+                    continue
+                d["vals_f"], n = cap_apt_to_airtemp(d["vals_f"], ref)
+                n_capped += n
+            if n_capped:
+                print(f"  cap: {n_capped:,} apt cell(s) > air temp + "
+                      f"{APT_OVER_AIRTEMP_MARGIN_F:.0f}°F -> NaN ({area})")
+
         for d in days:
             day_meta_by_date.setdefault(d["fcst_date"], {k: v for k, v in d.items() if k != "vals_f"})
 
@@ -321,7 +380,8 @@ def main() -> int:
             csub = counties[csec == area]
             if not csub.empty:
                 accumulate_counties(county_vals, csub, geoid_col, lats1d, lons1d,
-                                    days, args.decimate, prod["county_agg"])
+                                    days, args.decimate, prod["county_agg"],
+                                    args.county_pct)
         del lats1d, lons1d, days
         decoded.append(area)
 

@@ -28,6 +28,18 @@ import pandas as pd
 # that would otherwise poison a place value or a county aggregate.
 PLAUSIBLE_F = (-80.0, 145.0)
 
+# Physical sanity cap for apparent temp ("feels-like") against the co-located
+# air-temp max. The heat index runs ABOVE air temp in humid heat, but only so
+# far: across a full CONUS run the largest *real* gap we see is ~22°F (Gulf
+# Coast / Louisiana parishes). Anything much beyond that is a corrupt NDFD apt
+# cell, not weather. Case in point: Lemhi County, ID once published a 139°F
+# feels-like over a 100°F air-temp max — a +39°F gap from a single bad grid cell
+# that our per-cell MAX surfaced as the county value. 25°F leaves headroom over
+# the ~22°F real ceiling while still catching that class of corruption. This is
+# a value guard, NOT the heat-index formula (we never compute apt ourselves —
+# NDFD ships it; we only sanity-check what it ships).
+APT_OVER_AIRTEMP_MARGIN_F = 25.0
+
 # Warm-night window: local 8pm–8am. A reading before 8am belongs to the night
 # that began the *previous* evening (so "the night of the 4th" runs into the 5th).
 NIGHT_HOURS = set(range(20, 24)) | set(range(0, 8))
@@ -53,6 +65,26 @@ def guard_range(f) -> tuple[np.ndarray, int]:
     bad = ~np.isnan(f) & ((f < PLAUSIBLE_F[0]) | (f > PLAUSIBLE_F[1]))
     f[bad] = np.nan
     return f, int(bad.sum())
+
+
+def cap_apt_to_airtemp(apt_f, maxt_f, margin: float = APT_OVER_AIRTEMP_MARGIN_F) -> tuple[np.ndarray, int]:
+    """Drop apparent-temp cells that run implausibly far above the air-temp max.
+
+    Returns ``(capped_values, n_capped)``. ``apt_f`` and ``maxt_f`` must be
+    per-cell arrays on the SAME grid for the SAME forecast day (NDFD ships apt
+    and maxt on one shared grid, so they line up cell-for-cell). Any cell where
+    ``apt > maxt + margin`` is set to NaN — treated as corrupt and dropped, not
+    clamped, so it falls out of the downstream per-cell max / county aggregate
+    entirely and the county value comes from its remaining good cells.
+
+    Cells with a NaN air-temp reference are left untouched (nothing to cap
+    against). See ``APT_OVER_AIRTEMP_MARGIN_F`` for why the margin is 25°F.
+    """
+    apt = np.asarray(apt_f, dtype="float64").copy()
+    maxt = np.asarray(maxt_f, dtype="float64")
+    bad = ~np.isnan(apt) & ~np.isnan(maxt) & (apt > maxt + margin)
+    apt[bad] = np.nan
+    return apt, int(bad.sum())
 
 
 def to_int_f(values) -> "pd.array":

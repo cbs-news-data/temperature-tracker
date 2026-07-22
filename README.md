@@ -95,6 +95,8 @@ fill-value masking, hourly `apt` message structure, and day/night date attributi
 - `build_heat.py --tz America/New_York` — apt products: the timezone whose
   calendar day/night defines each bucket (default `America/Chicago`).
 - `build_heat.py --decimate N` — county zonal sampling stride (2 ≈ 5 km).
+- `build_heat.py --county-pct P` — county value = tail percentile of its cells
+  (default `0.95`; robust to a lone corrupt cell; `1.0` restores raw min/max).
 - `make_reference.py --incorporated --min-sqmi 0.5` — thin the places universe.
 - `fetch_ndfd.py --area conus,alaska,hawaii` — sectors (add `puertorico` if needed).
 
@@ -106,8 +108,11 @@ fill-value masking, hourly `apt` message structure, and day/night date attributi
   only defined ≥80°F; the NWS Heat Index *categories* apply to feels-like only.
 - **Warm-night date = the evening the night begins** (night of the 4th → labeled
   the 4th).
-- **County values are extremes, not averages** — hottest cell for temp/feelslike,
-  coolest for warm nights; not population-weighted.
+- **County values are near-extremes, not averages** — the 95th-percentile cell for
+  temp/feelslike, 5th for warm nights (`--county-pct`); a tail percentile, not the
+  single hottest/coolest cell, so one corrupt cell can't define a county. Not
+  population-weighted. Feels-like cells are also dropped when they exceed the same
+  day's air-temp max by more than 25°F (a corrupt-cell guard; see `cap_apt_to_airtemp`).
 - **Thin buckets** at the near/far ends rest on fewer hours (`n_hours` flags them).
 - **One fixed timezone per build** (`--tz`), not per-cell solar time.
 - **Whole °F only**; guard band −80…145°F kills unmasked GRIB fills at decode.

@@ -15,9 +15,11 @@ import numpy as np
 import pandas as pd
 
 from utils.heat import (
+    APT_OVER_AIRTEMP_MARGIN_F,
     as_apt_daymax,
     as_apt_nightmin,
     as_daily_maxt,
+    cap_apt_to_airtemp,
     guard_range,
     k_to_f,
     to_int_f,
@@ -53,6 +55,42 @@ def test_guard_preserves_existing_nan_without_counting_it():
 def test_guard_does_not_mutate_input():
     src = np.array([200.0, 50.0])  # 200°F is out of band
     guard_range(src)
+    assert src[0] == 200.0  # original untouched
+
+
+# ----------------------------------------------------------- cap_apt_to_airtemp
+def test_cap_drops_apt_far_above_airtemp():
+    # The Lemhi case: apt 139 over a 100°F air-temp max (+39) is corrupt -> NaN;
+    # a legit humid-heat gap (+20) and an apt at/below air temp both survive.
+    apt = np.array([139.0, 120.0, 95.0])
+    maxt = np.array([100.0, 100.0, 100.0])
+    capped, n = cap_apt_to_airtemp(apt, maxt)
+    assert n == 1
+    assert np.isnan(capped[0])
+    assert capped[1] == 120.0 and capped[2] == 95.0
+
+
+def test_cap_boundary_is_inclusive_of_the_margin():
+    # Exactly air temp + margin is allowed; one degree beyond is dropped.
+    apt = np.array([100.0 + APT_OVER_AIRTEMP_MARGIN_F,
+                    100.0 + APT_OVER_AIRTEMP_MARGIN_F + 1.0])
+    capped, n = cap_apt_to_airtemp(apt, np.array([100.0, 100.0]))
+    assert n == 1
+    assert capped[0] == 100.0 + APT_OVER_AIRTEMP_MARGIN_F
+    assert np.isnan(capped[1])
+
+
+def test_cap_leaves_cells_with_no_airtemp_reference():
+    # NaN air-temp max = nothing to cap against; the apt value passes through.
+    apt = np.array([200.0, 90.0])
+    capped, n = cap_apt_to_airtemp(apt, np.array([np.nan, 80.0]))
+    assert n == 0
+    assert capped[0] == 200.0 and capped[1] == 90.0
+
+
+def test_cap_does_not_mutate_input():
+    src = np.array([200.0, 90.0])  # 200 over a 100 max would be capped
+    cap_apt_to_airtemp(src, np.array([100.0, 100.0]))
     assert src[0] == 200.0  # original untouched
 
 
