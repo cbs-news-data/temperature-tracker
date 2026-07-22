@@ -22,16 +22,12 @@ Three decoupled stages that talk only through files:
 Consumers only ever read the published URLs — presentation can change anywhere
 without touching this pipeline.
 
-## Data contract (for downstream consumers — the graphics-rig embed)
+## Data contract: relied on downstream for published live-tracking graphic
 
-Treat this as a **frozen interface**; breaking changes require coordinating with
-every consumer:
+- **The six files always reformatted from raw data and published.** The graphics-rig map fetches
+  these output files at runtime (`HeatMap.svelte`). **Do not rename, drop or stop publishing.**
 
-- **The six files, always published, always fresh.** The graphics-rig map fetches
-  these exact names at runtime (`HeatMap.svelte`); never rename, drop, or stop
-  publishing one:
-
-  | File | Measure | Powers (in the rig map) |
+  | File | Measure | Powers (in published map) |
   |---|---|---|
   | `heat_counties.geojson` | high temp | county choropleth + day thumbnails |
   | `heat_points.geojson` | high temp | "Places" dots + city search |
@@ -52,10 +48,10 @@ every consumer:
   `seq`, `fcst_date` (the date the value describes), `valid_utc`; apt products add
   `n_hours` + `valid_start_utc` (thin-bucket flagging). `metadata.issued_utc` =
   when NWS generated the forecast.
-- **Semantics to preserve in any renderer:** label days off `fcst_date`, never the
+- **Semantics to preserve:** label days off `fcst_date`, never the
   `dayN` index ("today" expires mid-day); warm-night `fcst_date` = the evening the
-  night begins; feels-like is NWS apparent temperature (Heat Index categories apply
-  to it, not to raw temperature); hide `null`s rather than painting them cold.
+  night begins; feels-like is NWS apparent temperature (heat index categories apply
+  to it, not raw temperature); hide `null`s.
 - **CORS:** GitHub Pages serves `Access-Control-Allow-Origin: *`.
 
 ## Products

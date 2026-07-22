@@ -23,46 +23,40 @@ from __future__ import annotations
 
 import argparse
 import sys
-import time
 from pathlib import Path
 
 # Put the project root on the path so ``import config`` works no matter how this
 # script is invoked (``uv run python scripts/fetch_ndfd.py`` or ``-m``).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-import requests  # noqa: E402
-
 import config  # noqa: E402
+from utils.http import get_with_retry  # noqa: E402
 
 BASE = "https://tgftp.nws.noaa.gov/SL.us008001/{status}/DF.gr2/DC.ndfd/AR.{area}/VP.{period}/ds.{element}.bin"
 PERIODS = ["001-003", "004-007"]
 
-# NWS asks automated clients to identify themselves with a contact address.
-HEADERS = {"User-Agent": "cbs-news-heat-map/1.0 (data journalism; johnl.kelly@cbsnews.com)"}
+
+def _require_grib(content: bytes) -> None:
+    # TGFTP serves NDFD as WMO-wrapped, concatenated GRIB2 messages: each message
+    # is framed by a ****<bytecount>**** separator and a WMO heading, so the file
+    # does NOT start with 'GRIB' (the first message sits ~80 bytes in).
+    # pygrib/eccodes scans past that framing fine. Accept any payload that
+    # contains a GRIB indicator; reject HTML/error pages (which won't).
+    if b"GRIB" not in content:
+        raise ValueError(f"payload has no GRIB2 message (starts {content[:16]!r})")
 
 
 def fetch_one(status: str, area: str, period: str, element: str,
               outdir: Path, tries: int = 4) -> Path | None:
     url = BASE.format(status=status, area=area, period=period, element=element)
     dest = outdir / f"{element}_{area}_{period}.bin"
-    for attempt in range(1, tries + 1):
-        try:
-            r = requests.get(url, headers=HEADERS, timeout=120)
-            r.raise_for_status()
-            # TGFTP serves NDFD as WMO-wrapped, concatenated GRIB2 messages: each
-            # message is framed by a ****<bytecount>**** separator and a WMO heading,
-            # so the file does NOT start with 'GRIB' (the first message sits ~80 bytes
-            # in). pygrib/eccodes scans past that framing fine. Accept any payload
-            # that contains a GRIB indicator; reject HTML/error pages (which won't).
-            if b"GRIB" not in r.content:
-                raise ValueError(f"payload has no GRIB2 message (starts {r.content[:16]!r})")
-            dest.write_bytes(r.content)
-            print(f"  ok  {url}  ({len(r.content):,} bytes)")
-            return dest
-        except Exception as e:  # noqa: BLE001 — retry on anything transient
-            print(f"  try {attempt}/{tries} failed: {e}", file=sys.stderr)
-            time.sleep(2 * attempt)
-    print(f"  GIVE UP {url}", file=sys.stderr)
-    return None
+    try:
+        content = get_with_retry(url, tries=tries, timeout=120, validate=_require_grib)
+        dest.write_bytes(content)
+        print(f"  ok  {url}  ({len(content):,} bytes)")
+        return dest
+    except Exception as e:  # noqa: BLE001 — already retried; log and mark failed
+        print(f"  GIVE UP {url}: {e}", file=sys.stderr)
+        return None
 
 
 def main() -> int:

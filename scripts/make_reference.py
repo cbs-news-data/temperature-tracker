@@ -20,20 +20,18 @@ import argparse
 import io
 import re
 import sys
-import time
 import zipfile
 from pathlib import Path
 
 # Project root on the path so ``import config`` resolves under any invocation.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd  # noqa: E402
-import requests  # noqa: E402
 
 import config  # noqa: E402
+from utils.http import get_with_retry  # noqa: E402
 
 GAZ = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_place_national.zip"
 CB_COUNTY = "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_county_20m.zip"
-UA = {"User-Agent": "cbs-news-heat-map/1.0 (data journalism; johnl.kelly@cbsnews.com)"}
 
 # LSAD codes that denote incorporated places (cities/towns/boroughs/villages),
 # i.e. not Census Designated Places (LSAD 57) — see the Census LSAD reference.
@@ -86,24 +84,9 @@ def clean_place_name(name: str) -> str:
     return _DESC.sub("", n).strip()
 
 
-def get_bytes(url: str, tries: int = 4) -> bytes:
-    """Download with retry/backoff. Census TLS handshakes can fail transiently on
-    corporate networks; one hiccup shouldn't sink a yearly reference build."""
-    for attempt in range(1, tries + 1):
-        try:
-            r = requests.get(url, headers=UA, timeout=180)
-            r.raise_for_status()
-            return r.content
-        except Exception as e:  # noqa: BLE001 — retry on anything transient
-            print(f"  try {attempt}/{tries} failed: {e}", file=sys.stderr)
-            if attempt == tries:
-                raise
-            time.sleep(2 * attempt)
-
-
 def build_places(min_sqmi: float, incorporated: bool) -> pd.DataFrame:
     print(f"GET {GAZ}")
-    z = zipfile.ZipFile(io.BytesIO(get_bytes(GAZ)))
+    z = zipfile.ZipFile(io.BytesIO(get_with_retry(GAZ)))
     name = next(n for n in z.namelist() if n.lower().endswith(".txt"))
     # The Gazetteer is UTF-8 (accented names: Cañon City, Doña Ana, Bayamón);
     # latin-1 here silently mojibakes them ("CaÃ±on City").
@@ -160,7 +143,7 @@ def build_counties(outdir: Path):
     print(f"GET {CB_COUNTY}")
     outdir.mkdir(parents=True, exist_ok=True)
     zpath = outdir / "_county.zip"
-    zpath.write_bytes(get_bytes(CB_COUNTY))
+    zpath.write_bytes(get_with_retry(CB_COUNTY))
     gdf = gpd.read_file(f"zip://{zpath}").to_crs(4326)
     keep = [c for c in ("GEOID", "NAME", "NAMELSAD", "STUSPS", "STATE_NAME", "geometry")
             if c in gdf.columns]

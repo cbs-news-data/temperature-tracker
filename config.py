@@ -21,8 +21,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"                 # NDFD GRIB2 (never committed)
 PROCESSED_DATA_DIR = PROJECT_ROOT / os.getenv("OUTPUT_DIR", "data/processed")
 REFERENCE_DIR = DATA_DIR / "reference"          # places.csv + counties.geojson (~yearly refresh)
-DOCUMENTATION_DIR = DATA_DIR / "documentation"
 
 # Ensure data dirs exist on first import
-for _dir in [RAW_DATA_DIR, PROCESSED_DATA_DIR, REFERENCE_DIR, DOCUMENTATION_DIR]:
+for _dir in [RAW_DATA_DIR, PROCESSED_DATA_DIR, REFERENCE_DIR]:
     _dir.mkdir(parents=True, exist_ok=True)
