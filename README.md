@@ -27,6 +27,19 @@ without touching this pipeline.
 Treat this as a **frozen interface**; breaking changes require coordinating with
 every consumer:
 
+- **The six files, always published, always fresh.** The graphics-rig map fetches
+  these exact names at runtime (`HeatMap.svelte`); never rename, drop, or stop
+  publishing one:
+
+  | File | Measure | Powers (in the rig map) |
+  |---|---|---|
+  | `heat_counties.geojson` | high temp | county choropleth + day thumbnails |
+  | `heat_points.geojson` | high temp | "Places" dots + city search |
+  | `feelslike_counties.geojson` | feels-like | county choropleth |
+  | `feelslike_points.geojson` | feels-like | dots + search |
+  | `warmnight_counties.geojson` | overnight low | county choropleth |
+  | `warmnight_points.geojson` | overnight low | dots + search |
+
 - **URLs:** `https://cbs-news-data.github.io/temperature-tracker/data/{heat,feelslike,warmnight}_{points,counties}.geojson`
 - **Cadence:** refreshed 3× daily (9:23 / 15:23 / 0:23 UTC + deploy + CDN; GitHub
   cron runs 15–75 min late). Consumers should fetch with `cache: "no-cache"`.
